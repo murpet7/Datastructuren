@@ -1,0 +1,12 @@
+C:\Users\yanni\OneDrive\Documenten\Universiteit Utrecht\Jaar 3\Blok 4 - Graphics\OneDrive_2022-05-15\Practical 1\INFOGR2022Template\bin\Debug\INFOGR2022Template.exe.config
+C:\Users\yanni\OneDrive\Documenten\Universiteit Utrecht\Jaar 3\Blok 4 - Graphics\OneDrive_2022-05-15\Practical 1\INFOGR2022Template\bin\Debug\INFOGR2022Template.exe
+C:\Users\yanni\OneDrive\Documenten\Universiteit Utrecht\Jaar 3\Blok 4 - Graphics\OneDrive_2022-05-15\Practical 1\INFOGR2022Template\bin\Debug\INFOGR2022Template.pdb
+C:\Users\yanni\OneDrive\Documenten\Universiteit Utrecht\Jaar 3\Blok 4 - Graphics\OneDrive_2022-05-15\Practical 1\INFOGR2022Template\bin\Debug\OpenTK.dll
+C:\Users\yanni\OneDrive\Documenten\Universiteit Utrecht\Jaar 3\Blok 4 - Graphics\OneDrive_2022-05-15\Practical 1\INFOGR2022Template\bin\Debug\OpenTK.pdb
+C:\Users\yanni\OneDrive\Documenten\Universiteit Utrecht\Jaar 3\Blok 4 - Graphics\OneDrive_2022-05-15\Practical 1\INFOGR2022Template\bin\Debug\OpenTK.xml
+C:\Users\yanni\OneDrive\Documenten\Universiteit Utrecht\Jaar 3\Blok 4 - Graphics\OneDrive_2022-05-15\Practical 1\INFOGR2022Template\obj\Debug\Template.csproj.AssemblyReference.cache
+C:\Users\yanni\OneDrive\Documenten\Universiteit Utrecht\Jaar 3\Blok 4 - Graphics\OneDrive_2022-05-15\Practical 1\INFOGR2022Template\obj\Debug\Template.csproj.SuggestedBindingRedirects.cache
+C:\Users\yanni\OneDrive\Documenten\Universiteit Utrecht\Jaar 3\Blok 4 - Graphics\OneDrive_2022-05-15\Practical 1\INFOGR2022Template\obj\Debug\Template.csproj.CoreCompileInputs.cache
+C:\Users\yanni\OneDrive\Documenten\Universiteit Utrecht\Jaar 3\Blok 4 - Graphics\OneDrive_2022-05-15\Practical 1\INFOGR2022Template\obj\Debug\Template.csproj.CopyComplete
+C:\Users\yanni\OneDrive\Documenten\Universiteit Utrecht\Jaar 3\Blok 4 - Graphics\OneDrive_2022-05-15\Practical 1\INFOGR2022Template\obj\Debug\INFOGR2022Template.exe
+C:\Users\yanni\OneDrive\Documenten\Universiteit Utrecht\Jaar 3\Blok 4 - Graphics\OneDrive_2022-05-15\Practical 1\INFOGR2022Template\obj\Debug\INFOGR2022Template.pdb
