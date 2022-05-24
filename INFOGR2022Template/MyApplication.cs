@@ -14,6 +14,7 @@ namespace Template
 		Sphere sphere1;
 		Sphere sphere2;
 		Sphere sphere3;
+		Plane plane1;
 		Camera camera;
 		public Ray ray;
 		Raytracer raytracer;
@@ -25,9 +26,11 @@ namespace Template
 			sphere1 = new Sphere(new Vector3(-1, .5f, 5f), 1.1f);
 			sphere2 = new Sphere(new Vector3(0, -1, 1.5f), .2f);
 			sphere3 = new Sphere(new Vector3(0, 0, 2f), .4f);
+			plane1 = new Plane(new Vector3(0, 1, 0), 2);
 			primitives.Add(sphere1);
 			primitives.Add(sphere2);
 			primitives.Add(sphere3);
+			primitives.Add(plane1);
 			camera = new Camera();
 			ray = new Ray(new Vector3(0, -1, 0), Vector3.One, 100);
 			raytracer = new Raytracer(this, camera, screen);
@@ -115,7 +118,6 @@ namespace Template
 			this.position = position;
 			this.radius = radius;
 		}
-		
 	}
 
 	class Plane : Primitive
@@ -167,14 +169,23 @@ namespace Template
 				ray.length = t;
         }
 
-		public static void IntersectPlane(Plane plane, Ray ray) 
+		public static bool IntersectPlane(Plane plane, Ray ray) 
 		{
-			Vector3 p0 = ray.origin + plane.distance * plane.normal;
-			float t = Vector3.Dot(plane.normal, ray.direction);
-			if (t > 0.0001f) //epsilon
-			{
-				
-			}
+			float denom = Vector3.Dot(plane.normal, ray.direction);
+
+			if (Math.Abs(denom) <= 1e-4f)
+            {
+				return false;
+            }
+
+			float t = -(float)(Vector3.Dot(plane.normal, ray.origin) + plane.distance) / Vector3.Dot(plane.normal, ray.direction);
+
+			if (t <= 1e-4)
+            {
+				return false;
+            }
+			ray.length = 99;
+			return true;
 		}
 
 		//normaallijn moet nog berekend worden bij een intersect
@@ -210,6 +221,10 @@ namespace Template
 						if (primitive.GetType() == typeof(Sphere))
 						{
 							Intersection.IntersectSphere((Sphere)primitive, scene.ray);
+						}
+						if (primitive.GetType() == typeof(Plane))
+						{
+							Intersection.IntersectPlane((Plane)primitive, scene.ray);
 						}
 					}
 					if (scene.ray.length < 100)
