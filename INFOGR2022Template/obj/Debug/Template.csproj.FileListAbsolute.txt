@@ -10,3 +10,14 @@ C:\Users\yanni\OneDrive\Documenten\Universiteit Utrecht\Jaar 3\Blok 4 - Graphics
 C:\Users\yanni\OneDrive\Documenten\Universiteit Utrecht\Jaar 3\Blok 4 - Graphics\OneDrive_2022-05-15\Practical 1\INFOGR2022Template\obj\Debug\Template.csproj.CopyComplete
 C:\Users\yanni\OneDrive\Documenten\Universiteit Utrecht\Jaar 3\Blok 4 - Graphics\OneDrive_2022-05-15\Practical 1\INFOGR2022Template\obj\Debug\INFOGR2022Template.exe
 C:\Users\yanni\OneDrive\Documenten\Universiteit Utrecht\Jaar 3\Blok 4 - Graphics\OneDrive_2022-05-15\Practical 1\INFOGR2022Template\obj\Debug\INFOGR2022Template.pdb
+D:\Datastructuren\INFOGR2022Template\bin\Debug\INFOGR2022Template.exe.config
+D:\Datastructuren\INFOGR2022Template\bin\Debug\INFOGR2022Template.exe
+D:\Datastructuren\INFOGR2022Template\bin\Debug\INFOGR2022Template.pdb
+D:\Datastructuren\INFOGR2022Template\bin\Debug\OpenTK.dll
+D:\Datastructuren\INFOGR2022Template\bin\Debug\OpenTK.pdb
+D:\Datastructuren\INFOGR2022Template\bin\Debug\OpenTK.xml
+D:\Datastructuren\INFOGR2022Template\obj\Debug\Template.csproj.AssemblyReference.cache
+D:\Datastructuren\INFOGR2022Template\obj\Debug\Template.csproj.CoreCompileInputs.cache
+D:\Datastructuren\INFOGR2022Template\obj\Debug\Template.csproj.CopyComplete
+D:\Datastructuren\INFOGR2022Template\obj\Debug\INFOGR2022Template.exe
+D:\Datastructuren\INFOGR2022Template\obj\Debug\INFOGR2022Template.pdb

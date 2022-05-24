@@ -6,65 +6,68 @@ using System.Collections.Generic;
 
 namespace Template
 {
-	class MyApplication //test
+	class MyApplication
 	{
 		// member variables
 		public Surface screen;
 
-		Primitive.Sphere sphere1;
-		Primitive.Sphere sphere2;
-		Primitive.Sphere sphere3;
+		Sphere sphere1;
+		Sphere sphere2;
+		Sphere sphere3;
 		Camera camera;
-		Ray ray;
-		Intersection intersection;
-		List<Primitive> primitives;
+		public Ray ray;
+		Raytracer raytracer;
+		public List<Primitive> primitives;
 		// initialize
 		public void Init()
 		{
-			sphere1 = new Primitive.Sphere(new Vector3(-.5f, .5f, 0), .3f);
-			sphere2 = new Primitive.Sphere(new Vector3(0, .5f, 0), .3f);
-			sphere3 = new Primitive.Sphere(new Vector3(.5f, .5f, 0), .3f);
+			primitives = new List<Primitive>();
+			sphere1 = new Sphere(new Vector3(-1f, 1f, 0), .4f);
+			sphere2 = new Sphere(new Vector3(0, 1, 0), .4f);
+			sphere3 = new Sphere(new Vector3(1f, 1f, 0), .4f);
 			primitives.Add(sphere1);
 			primitives.Add(sphere2);
 			primitives.Add(sphere3);
 			camera = new Camera();
-			ray = new Ray(Vector3.Zero, Vector3.One, 100);
-			intersection = new Intersection();
+			ray = new Ray(new Vector3(0, -1, 0), Vector3.One, 100);
+			raytracer = new Raytracer(this, camera, screen);
 		}
 		// tick: renders one frame
 		public void Tick()
 		{
 			screen.Clear( 0 );
 
-			for(int i = 0; i < 8; i++)
-            {
-				ray.direction = new Vector3(-1 + i / 4, 1, 0);
-				foreach(Primitive primitive in primitives)
-                {
-					if(primitive.GetType() == typeof(Sphere))
-                    {
-						intersection.Intersect((Sphere)primitive, ray);
-                    }
-                }
-            }
-
-			screen.Line( 2, 20, 160, 20, 0xff0000 );
+			raytracer.Render();
+			DrawCircle(sphere1.position.X, sphere1.position.Y, sphere1.radius, 20);
+			DrawCircle(sphere2.position.X, sphere2.position.Y, sphere2.radius, 20);
+			DrawCircle(sphere3.position.X, sphere3.position.Y, sphere3.radius, 20);
 		}
 
-		int TX(float point)
+		public int TX(float point)
 		{
 			float shift = point + 2;
 			float scale = shift * (screen.width / 4);
 			return Convert.ToInt32(scale);
 		}
 
-		int TY(float point)
+		public int TY(float point)
 		{
 			float invert = -point;
 			float scale = invert * (screen.width / 4);
 			float shift = scale + (screen.height / 2);
 			//4*160;4*100
 			return Convert.ToInt32(shift);
+		}
+
+		void DrawCircle(float cx, float cy, float r, int num_segments)
+		{
+			for (int i = 0; i < num_segments; i++)
+			{
+				float theta = 2f * (float)Math.PI * (float)i / (float)num_segments;//get the current angle 
+				float x = r * (float)Math.Cos(theta);//calculate the x component 
+				float y = r * (float)Math.Sin(theta);//calculate the y component 
+				screen.Line(TX(cx), TY(cy), TX(x + cx), TY(y + cy), 0xff0000);
+			}
 		}
 
 	}
@@ -110,8 +113,8 @@ namespace Template
 		{
 			this.position = position;
 			this.radius = radius;
-
 		}
+		
 	}
 
 	class Plane : Primitive
@@ -150,7 +153,7 @@ namespace Template
 		public Primitive nearestPrim;
 		public Vector3 normal;
 
-		public void Intersect(Primitive.Sphere sphere, Ray ray)
+		public static void IntersectSphere(Sphere sphere, Ray ray)
         {
 			Vector3 center = sphere.position - ray.origin;
 			float t = Vector3.Dot(center, ray.direction);
@@ -163,7 +166,7 @@ namespace Template
 				ray.length = t;
         }
 
-		public void Intersect(Primitive.Plane plane, Ray ray) 
+		public static void IntersectPlane(Plane plane, Ray ray) 
 		{
 			Vector3 p0 = ray.origin + plane.distance * plane.normal;
 			float t = Vector3.Dot(plane.normal, ray.direction);
@@ -177,8 +180,42 @@ namespace Template
 		//Intersect werkt niet als de ray in de sphere begint
 		//Plane intersect moet nog worden gemaakt
 	}
-	class Raytracer { }
+	class Raytracer 
+	{
+		MyApplication scene;
+		Camera camera;
+		Surface surface;
 
-	class Application { }
+		public Raytracer(MyApplication scene, Camera camera, Surface surface)
+        {
+			this.scene = scene;
+			this.camera = camera;
+			this.surface = surface;
+        }
+
+		public void Render()
+        {
+
+			for (int i = 0; i < 9; i++)
+			{
+				scene.ray.direction = Vector3.Normalize(new Vector3(-1f + i / 4f, 1, 0));
+				foreach (Primitive primitive in scene.primitives)
+				{
+					if (primitive.GetType() == typeof(Sphere))
+					{
+						Intersection.IntersectSphere((Sphere)primitive, scene.ray);
+					}
+				}
+				scene.screen.Line(scene.TX(scene.ray.origin.X), scene.TY(scene.ray.origin.Y),
+							scene.TX(scene.ray.origin.X + scene.ray.direction.X * scene.ray.length), scene.TY(scene.ray.origin.Y + scene.ray.direction.Y * scene.ray.length), 0xff0000);
+				scene.ray.length = 100;
+			}
+		}
+	}
+
+	class Application 
+	{ 
+
+	}
 
 }
