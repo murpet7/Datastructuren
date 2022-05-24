@@ -22,9 +22,9 @@ namespace Template
 		public void Init()
 		{
 			primitives = new List<Primitive>();
-			sphere1 = new Sphere(new Vector3(-1f, 1f, 0), .4f);
-			sphere2 = new Sphere(new Vector3(0, 1, 0), .4f);
-			sphere3 = new Sphere(new Vector3(1f, 1f, 0), .4f);
+			sphere1 = new Sphere(new Vector3(-1, .5f, 5f), 1.1f);
+			sphere2 = new Sphere(new Vector3(0, -1, 1.5f), .2f);
+			sphere3 = new Sphere(new Vector3(0, 0, 2f), .4f);
 			primitives.Add(sphere1);
 			primitives.Add(sphere2);
 			primitives.Add(sphere3);
@@ -38,9 +38,6 @@ namespace Template
 			screen.Clear( 0 );
 
 			raytracer.Render();
-			DrawCircle(sphere1.position.X, sphere1.position.Y, sphere1.radius, 20);
-			DrawCircle(sphere2.position.X, sphere2.position.Y, sphere2.radius, 20);
-			DrawCircle(sphere3.position.X, sphere3.position.Y, sphere3.radius, 20);
 		}
 
 		public int TX(float point)
@@ -92,6 +89,8 @@ namespace Template
 		public Vector3 lookingDirection;
 		public Vector3 upDirection;
 		public Matrix4 viewSpace;
+		public Vector3 scrnTL;
+		public Vector3 scrnBR;
 
 		public Camera()
 		{
@@ -99,6 +98,8 @@ namespace Template
 			lookingDirection = new Vector3(0f, 0f, 1f);
 			upDirection = new Vector3(0f, 1f, 0f);
 			viewSpace = Matrix4.LookAt(position, lookingDirection, upDirection);
+			scrnTL = new Vector3(-1, 1, 1);
+			scrnBR = new Vector3(1, -1, 1);
 		}
     }
 
@@ -183,32 +184,40 @@ namespace Template
 	class Raytracer 
 	{
 		MyApplication scene;
-		Camera camera;
+		Camera cam;
 		Surface surface;
 
-		public Raytracer(MyApplication scene, Camera camera, Surface surface)
+		public Raytracer(MyApplication scene, Camera cam, Surface surface)
         {
 			this.scene = scene;
-			this.camera = camera;
+			this.cam = cam;
 			this.surface = surface;
         }
 
 		public void Render()
         {
-
-			for (int i = 0; i < 9; i++)
+			for (int y = 0; y < scene.screen.height; y++)
 			{
-				scene.ray.direction = Vector3.Normalize(new Vector3(-1f + i / 4f, 1, 0));
-				foreach (Primitive primitive in scene.primitives)
+				for (int x = 0; x < scene.screen.width; x++)
 				{
-					if (primitive.GetType() == typeof(Sphere))
+					scene.ray.direction = Vector3.Normalize(
+						new Vector3(cam.scrnTL.X - (cam.scrnTL.X - cam.scrnBR.X) * ((float)x / scene.screen.width),
+						cam.scrnTL.Y - (cam.scrnTL.Y - cam.scrnBR.Y) * ((float)y / scene.screen.height), 
+						cam.scrnTL.Z)
+						);
+					foreach (Primitive primitive in scene.primitives)
 					{
-						Intersection.IntersectSphere((Sphere)primitive, scene.ray);
+						if (primitive.GetType() == typeof(Sphere))
+						{
+							Intersection.IntersectSphere((Sphere)primitive, scene.ray);
+						}
 					}
+					if (scene.ray.length < 100)
+                    {
+						surface.pixels[x + y * scene.screen.width] = (int)(255 - scene.ray.length * scene.ray.length * 30);
+					}
+					scene.ray.length = 100;
 				}
-				scene.screen.Line(scene.TX(scene.ray.origin.X), scene.TY(scene.ray.origin.Y),
-							scene.TX(scene.ray.origin.X + scene.ray.direction.X * scene.ray.length), scene.TY(scene.ray.origin.Y + scene.ray.direction.Y * scene.ray.length), 0xff0000);
-				scene.ray.length = 100;
 			}
 		}
 	}
