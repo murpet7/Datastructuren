@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace Template
 {
-	class MyApplication
+	class MyApplication //test
 	{
 		// member variables
 		public Surface screen;
