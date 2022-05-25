@@ -27,8 +27,8 @@ namespace Template
 		public void Init()
 		{
 			primitives = new List<Primitive>();
-			sphere1 = new Sphere(new Vector3(0, 1.2f, 5f), 1.1f, new Clr(255, 0, 0));
-			sphere2 = new Sphere(new Vector3(1, 1, 1.5f), .2f, new Clr(0, 255, 0));
+			sphere1 = new Sphere(new Vector3(0, 1.2f, 5f), 1.1f, new Clr(0, 0, 255));
+			sphere2 = new Sphere(new Vector3(-1, 1, 1.5f), .2f, new Clr(255, 0, 0));
 			sphere3 = new Sphere(new Vector3(-1, 1, 2f), .4f, new Clr(0, 0, 255));
 			plane1 = new Plane(new Vector3(0, 1, 0), 2, new Clr(255, 0, 255));
 			primitives.Add(sphere1);
@@ -38,7 +38,7 @@ namespace Template
 			camera = new Camera();
 			ray = new Ray(Vector3.Zero, Vector3.One, rayLength);
 			raytracer = new Raytracer(this, camera, screen);
-			light1 = new Light(new Vector3(0, 10, 5), new Color4(1f, 0, 0, 1f));
+			light1 = new Light(new Vector3(0, 10, 0), new Color4(1f, 0, 0, 1f));
 			lights = new List<Light>();
 			lights.Add(light1);
 		}
@@ -169,7 +169,7 @@ namespace Template
 			float r2 = (float)Math.Pow(sphere.radius, 2);
 			if (p2 > r2) return;
 			t -= (float)Math.Sqrt(r2 - p2);
-			if ((t > -1e-4f) && t < ray.length + 1e-4f)
+			if ((t > 1e-4f) && t < ray.length - 1e-4f)
             {
 				ray.length = t;
 				nearestPrim = sphere;
@@ -247,22 +247,20 @@ namespace Template
 					if (intersection1.nearestPrim != null)
                     {
 						Vector3 intersectionPoint = scene.ray.origin + scene.ray.direction * scene.ray.length;
-						
+						surface.pixels[x + y * scene.screen.width] = scene.MixColor(intersection1.nearestPrim.color.red / 2, intersection1.nearestPrim.color.green / 2, intersection1.nearestPrim.color.blue / 2);
 						foreach (Light light in scene.lights)
                         {
 							Vector3 direction = Vector3.Normalize(new Vector3(light.position - intersectionPoint));
 							float length = new Vector3(light.position - intersectionPoint).Length;
 							Ray reflectionRay = new Ray(intersectionPoint, direction, length);
 							Intersection intersection2 = CheckCollisions(reflectionRay);
-							if (intersection2.nearestPrim == null)
-                            {
-								int baseColor = scene.MixColor(intersection1.nearestPrim.color.red, intersection1.nearestPrim.color.green, intersection1.nearestPrim.color.blue);
-								float reflectedEnergy = (1 / (float)Math.Pow(reflectionRay.length, 2)) * baseColor * 0.5f * Math.Max(0, Vector3.Dot(Vector3.Normalize(intersection1.normal), direction));
-								int newColor = scene.MixColor((int)(intersection1.nearestPrim.color.red * reflectedEnergy), (int)(intersection1.nearestPrim.color.green * reflectedEnergy), (int)(intersection1.nearestPrim.color.blue * reflectedEnergy));
-								surface.pixels[x + y * scene.screen.width] = newColor;
-								scene.ray.length = MainScene.rayLength;
-								//Console.WriteLine(Vector3.Dot(intersection1.normal, intersectionPoint - light.position));
-							}
+							
+
+							int baseColor = scene.MixColor(intersection1.nearestPrim.color.red, intersection1.nearestPrim.color.green, intersection1.nearestPrim.color.blue);
+							float reflectedEnergy = (1 / (float)Math.Pow(length, 2)) * baseColor * .5f * Math.Max(0.1f, Vector3.Dot(Vector3.Normalize(intersection1.normal), direction));
+							int newColor = scene.MixColor((int)(intersection1.nearestPrim.color.red * reflectedEnergy / 256 / 256), (int)(intersection1.nearestPrim.color.green * reflectedEnergy / 256), (int)(intersection1.nearestPrim.color.blue * reflectedEnergy));
+							surface.pixels[x + y * scene.screen.width] = newColor;
+							scene.ray.length = MainScene.rayLength;
 						}
 					}
 				}
