@@ -24,7 +24,7 @@ namespace Template
 	public class OpenTKApp : GameWindow
 	{
 		static int screenID;            // unique integer identifier of the OpenGL texture
-		static MyApplication app;       // instance of the application
+		static MainScene app;       // instance of the application
 		static bool terminated = false; // application terminates gracefully when this is true
 		protected override void OnLoad( EventArgs e )
 		{
@@ -34,7 +34,7 @@ namespace Template
 			GL.Disable( EnableCap.DepthTest );
 			GL.Hint( HintTarget.PerspectiveCorrectionHint, HintMode.Nicest );
 			ClientSize = new Size( 640, 400 );
-			app = new MyApplication();
+			app = new MainScene();
 			app.screen = new Surface( Width, Height );
 			Sprite.target = app.screen;
 			screenID = app.screen.GenTexture();

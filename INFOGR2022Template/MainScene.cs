@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace Template
 {
-	class MyApplication
+	class MainScene
 	{
 		// member variables
 		public Surface screen;
@@ -21,6 +21,8 @@ namespace Template
 		public List<Primitive> primitives;
 		Light light1;
 		public List<Light> lights;
+
+		public const int rayLength = int.MaxValue;
 		// initialize
 		public void Init()
 		{
@@ -34,9 +36,9 @@ namespace Template
 			primitives.Add(sphere3);
 			primitives.Add(plane1);
 			camera = new Camera();
-			ray = new Ray(Vector3.Zero, Vector3.One, 100);
+			ray = new Ray(Vector3.Zero, Vector3.One, rayLength);
 			raytracer = new Raytracer(this, camera, screen);
-			light1 = new Light(new Vector3(10, 10, 10), new Color4(1f, 0, 0, 1f));
+			light1 = new Light(new Vector3(0, 10, 5), new Color4(1f, 0, 0, 1f));
 			lights = new List<Light>();
 			lights.Add(light1);
 		}
@@ -158,40 +160,41 @@ namespace Template
 		public Primitive nearestPrim;
 		public Vector3 normal;
 
-		public static Sphere IntersectSphere(Sphere sphere, Ray ray)
+		public void IntersectSphere(Sphere sphere, Ray ray)
         {
 			Vector3 center = sphere.position - ray.origin;
 			float t = Vector3.Dot(center, ray.direction);
 			Vector3 q = center - t * ray.direction;
 			float p2 = q.LengthSquared;
 			float r2 = (float)Math.Pow(sphere.radius, 2);
-			if (p2 > r2) return null;
+			if (p2 > r2) return;
 			t -= (float)Math.Sqrt(r2 - p2);
 			if ((t > -1e-4f) && t < ray.length + 1e-4f)
             {
 				ray.length = t;
-				return sphere;
+				nearestPrim = sphere;
+				normal = (ray.origin + ray.length * ray.direction) - sphere.position;
 			}
-			return null;
         }
 
-		public static Plane IntersectPlane(Plane plane, Ray ray) 
+		public void IntersectPlane(Plane plane, Ray ray) 
 		{
 			float denom = Vector3.Dot(plane.normal, ray.direction);
 
 			if (Math.Abs(denom) <= 1e-4f)
             {
-				return null;
+				return;
             }
 
 			float t = -(float)(Vector3.Dot(plane.normal, ray.origin) + plane.distance) / Vector3.Dot(plane.normal, ray.direction);
 
 			if (t <= 1e-4)
             {
-				return null;
+				return;
             }
 			ray.length = (plane.normal * ray.direction).Length;
-			return plane;
+			nearestPrim = plane;
+			normal = plane.normal;
 		}
 
 		//normaallijn moet nog berekend worden bij een intersect
@@ -200,37 +203,32 @@ namespace Template
 	}
 	class Raytracer 
 	{
-		MyApplication scene;
+		MainScene scene;
 		Camera cam;
 		Surface surface;
 
-		public Raytracer(MyApplication scene, Camera cam, Surface surface)
+		public Raytracer(MainScene scene, Camera cam, Surface surface)
         {
 			this.scene = scene;
 			this.cam = cam;
 			this.surface = surface;
         }
 
-		public Primitive CheckCollisions(Ray ray)
+		public Intersection CheckCollisions(Ray ray)
         {
-			Primitive collidedPrimitive = null;
+			Intersection intersection = new Intersection();
 			foreach (Primitive primitive in scene.primitives)
 			{
-				Primitive currentPrimitive = null;
 				if (primitive.GetType() == typeof(Sphere))
 				{
-					currentPrimitive = Intersection.IntersectSphere((Sphere)primitive, ray);
+					intersection.IntersectSphere((Sphere)primitive, ray);
 				}
 				if (primitive.GetType() == typeof(Plane))
 				{
-					currentPrimitive = Intersection.IntersectPlane((Plane)primitive, ray);
+					intersection.IntersectPlane((Plane)primitive, ray);
 				}
-				if (currentPrimitive != null)
-                {
-					collidedPrimitive = currentPrimitive;
-                }
 			}
-			return collidedPrimitive;
+			return intersection;
 		}
 
 		public void Render()
@@ -244,22 +242,26 @@ namespace Template
 						cam.scrnTL.Y - (cam.scrnTL.Y - cam.scrnBR.Y) * ((float)y / scene.screen.height), 
 						cam.scrnTL.Z)
 						);
-					Primitive collidedPrimitive = CheckCollisions(scene.ray);
+					Intersection intersection1 = CheckCollisions(scene.ray);
 					
-					if (collidedPrimitive != null)
+					if (intersection1.nearestPrim != null)
                     {
 						Vector3 intersectionPoint = scene.ray.origin + scene.ray.direction * scene.ray.length;
-						scene.ray.length = 100;
-						surface.pixels[x + y * scene.screen.width] = scene.MixColor(collidedPrimitive.color.red / 2, collidedPrimitive.color.green / 2, collidedPrimitive.color.blue / 2);
+						
 						foreach (Light light in scene.lights)
                         {
 							Vector3 direction = Vector3.Normalize(new Vector3(light.position - intersectionPoint));
 							float length = new Vector3(light.position - intersectionPoint).Length;
 							Ray reflectionRay = new Ray(intersectionPoint, direction, length);
-							CheckCollisions(reflectionRay);
-							if (reflectionRay.length == length)
+							Intersection intersection2 = CheckCollisions(reflectionRay);
+							if (intersection2.nearestPrim == null)
                             {
-								surface.pixels[x + y * scene.screen.width] = scene.MixColor(collidedPrimitive.color.red, collidedPrimitive.color.green, collidedPrimitive.color.blue); ;
+								int baseColor = scene.MixColor(intersection1.nearestPrim.color.red, intersection1.nearestPrim.color.green, intersection1.nearestPrim.color.blue);
+								float reflectedEnergy = (1 / (float)Math.Pow(reflectionRay.length, 2)) * baseColor * 0.5f * Math.Max(0, Vector3.Dot(Vector3.Normalize(intersection1.normal), direction));
+								int newColor = scene.MixColor((int)(intersection1.nearestPrim.color.red * reflectedEnergy), (int)(intersection1.nearestPrim.color.green * reflectedEnergy), (int)(intersection1.nearestPrim.color.blue * reflectedEnergy));
+								surface.pixels[x + y * scene.screen.width] = newColor;
+								scene.ray.length = MainScene.rayLength;
+								//Console.WriteLine(Vector3.Dot(intersection1.normal, intersectionPoint - light.position));
 							}
 						}
 					}
