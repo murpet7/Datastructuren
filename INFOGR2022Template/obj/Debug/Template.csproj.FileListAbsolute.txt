@@ -21,3 +21,15 @@ D:\Datastructuren\INFOGR2022Template\obj\Debug\Template.csproj.CoreCompileInputs
 D:\Datastructuren\INFOGR2022Template\obj\Debug\Template.csproj.CopyComplete
 D:\Datastructuren\INFOGR2022Template\obj\Debug\INFOGR2022Template.exe
 D:\Datastructuren\INFOGR2022Template\obj\Debug\INFOGR2022Template.pdb
+C:\Users\yanni\Documents\GitHub\Datastructuren\INFOGR2022Template\bin\Debug\INFOGR2022Template.exe.config
+C:\Users\yanni\Documents\GitHub\Datastructuren\INFOGR2022Template\bin\Debug\INFOGR2022Template.exe
+C:\Users\yanni\Documents\GitHub\Datastructuren\INFOGR2022Template\bin\Debug\INFOGR2022Template.pdb
+C:\Users\yanni\Documents\GitHub\Datastructuren\INFOGR2022Template\bin\Debug\OpenTK.dll
+C:\Users\yanni\Documents\GitHub\Datastructuren\INFOGR2022Template\bin\Debug\OpenTK.pdb
+C:\Users\yanni\Documents\GitHub\Datastructuren\INFOGR2022Template\bin\Debug\OpenTK.xml
+C:\Users\yanni\Documents\GitHub\Datastructuren\INFOGR2022Template\obj\Debug\Template.csproj.AssemblyReference.cache
+C:\Users\yanni\Documents\GitHub\Datastructuren\INFOGR2022Template\obj\Debug\Template.csproj.SuggestedBindingRedirects.cache
+C:\Users\yanni\Documents\GitHub\Datastructuren\INFOGR2022Template\obj\Debug\Template.csproj.CoreCompileInputs.cache
+C:\Users\yanni\Documents\GitHub\Datastructuren\INFOGR2022Template\obj\Debug\Template.csproj.CopyComplete
+C:\Users\yanni\Documents\GitHub\Datastructuren\INFOGR2022Template\obj\Debug\INFOGR2022Template.exe
+C:\Users\yanni\Documents\GitHub\Datastructuren\INFOGR2022Template\obj\Debug\INFOGR2022Template.pdb
