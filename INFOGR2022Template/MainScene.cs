@@ -2,7 +2,10 @@ using System;
 using OpenTK.Graphics.OpenGL;
 using OpenTK;
 using OpenTK.Graphics;
+using OpenTK.Input;
 using System.Collections.Generic;
+using System.Windows.Input;
+using System.Windows.Forms;
 
 namespace Template
 {
@@ -10,48 +13,63 @@ namespace Template
 	{
 		// member variables
 		public Surface screen;
-
+		
 		Sphere sphere1;
 		Sphere sphere2;
 		Sphere sphere3;
 		Plane plane1;
-		Camera camera;
+		public Camera camera;
 		public Ray ray;
-		Raytracer raytracer;
+		public Raytracer raytracer;
 		public List<Primitive> primitives;
 		Light light1;
 		Light light2;
 		public List<Light> lights;
+		public Application app;
+		public Scene scene;
 
 		public const int rayLength = 5000;
 		// initialize
 		public void Init()
 		{
+			scene = new Scene();
+			
 			primitives = new List<Primitive>();
-			sphere1 = new Sphere(new Vector3(0, -.8f, 2f), .1f, new Material(0, 0, 255));
-			sphere2 = new Sphere(new Vector3(-1, 1, 1.5f), .1f, new Material(255, 0, 0));
-			sphere3 = new Sphere(new Vector3(-1, 1, 2f), .4f, new Material(0, 0, 255));
+			sphere1 = new Sphere(new Vector3(0, 0, 2f), .1f, new Material(0, 0, 255));
+			sphere2 = new Sphere(new Vector3(-1, 0, 1.5f), .1f, new Material(255, 0, 0));
+			sphere3 = new Sphere(new Vector3(2, 0, 2f), .4f, new Material(0, 0, 255));
 			plane1 = new Plane(new Vector3(0, 1, 0), -1, new Material(255, 0, 255, false, true));
-			primitives.Add(sphere1);
-			primitives.Add(sphere2);
-			primitives.Add(sphere3);
-			primitives.Add(plane1);
-			camera = new Camera();
-			ray = new Ray(Vector3.Zero, Vector3.One, rayLength);
-			raytracer = new Raytracer(this, camera, screen);
+
+			scene.primitives.Add(sphere1);
+			scene.primitives.Add(sphere2);
+			scene.primitives.Add(sphere3);
+			scene.primitives.Add(plane1);
+
 			light1 = new Light(new Vector3(.2f, 1f, 2f), new Color4(255, 255, 255, 2f));
 			light2 = new Light(new Vector3(-.9f, -.5f, 2f), new Color4(255, 255, 255, 1f));
 			lights = new List<Light>();
-			lights.Add(light1);
-			lights.Add(light2);
+
+			scene.lights.Add(light1);
+			scene.lights.Add(light2);
+
+			camera = new Camera();
+			ray = new Ray(Vector3.Zero, Vector3.One, rayLength);
+			
+			raytracer = new Raytracer(scene, camera, screen);
+
+			
+			
+
+			//app = new Application(raytracer);
+			
 		}
 		// tick: renders one frame
 		public void Tick()
 		{
 			screen.Clear( 0 );
-
 			raytracer.Render();
 		}
+
 
 		public int TX(float point)
 		{
@@ -218,11 +236,11 @@ namespace Template
 	}
 	class Raytracer
 	{
-		MainScene scene;
-		Camera cam;
-		Surface surface;
+		public Scene scene;
+		public Camera cam;
+		public Surface surface;
 
-		public Raytracer(MainScene scene, Camera cam, Surface surface)
+		public Raytracer(Scene scene, Camera cam, Surface surface)
 		{
 			this.scene = scene;
 			this.cam = cam;
@@ -248,20 +266,21 @@ namespace Template
 
 		public void Render()
 		{
-			for (int y = 0; y < scene.screen.height; y++)
+			for (int y = 0; y < surface.height; y++)
 			{
-				for (int x = surface.width - surface.width / 2; x < scene.screen.width; x++) //2e helft van het scherm tot eind
+				for (int x = surface.width - surface.width / 2; x < surface.width; x++) //2e helft van het scherm tot eind
 				{
-					scene.ray.direction = Vector3.Normalize(
+					Ray ray = new Ray(cam.position, cam.lookingDirection, 5000);
+						ray.direction = Vector3.Normalize(
 						new Vector3(cam.scrnTL.X - (cam.scrnTL.X - cam.scrnBR.X) * (((float)x - surface.width / 2) / (surface.width / 2)),
-						cam.scrnTL.Y - (cam.scrnTL.Y - cam.scrnBR.Y) * ((float)y / scene.screen.height),
+						cam.scrnTL.Y - (cam.scrnTL.Y - cam.scrnBR.Y) * ((float)y / surface.height),
 						cam.scrnTL.Z)
 						); //find ray direction
-					Intersection intersection1 = CheckCollisions(scene.ray); //check if ray intersects with an object in the scene
+					Intersection intersection1 = CheckCollisions(ray); //check if ray intersects with an object in the scene
 
 					if (intersection1.nearestPrim != null)
 					{
-						Vector3 intersectionPoint = scene.ray.origin + scene.ray.direction * scene.ray.length;
+						Vector3 intersectionPoint = ray.origin + ray.direction * ray.length;
 						float reflectedEnergy = .2f;
 						float red = 0;
 						float green = 0;
@@ -279,34 +298,39 @@ namespace Template
 								green = Math.Min(light.intensity.G + green, intersection1.nearestPrim.mat.green);
 								blue = Math.Min(light.intensity.B + blue, intersection1.nearestPrim.mat.blue);
 							}
-							scene.ray.length = MainScene.rayLength;
 						}
 						reflectedEnergy = Math.Min(reflectedEnergy, 1);
 						if (!intersection1.nearestPrim.mat.isCheckered)
 						{
-							surface.pixels[x + y * scene.screen.width] = intersection1.nearestPrim.GetColor(red, green, blue, reflectedEnergy);
+							surface.pixels[x + y * surface.width] = intersection1.nearestPrim.GetColor(red, green, blue, reflectedEnergy);
 						}
 						else
 						{
-							surface.pixels[x + y * scene.screen.width] = intersection1.nearestPrim.GetColor(intersectionPoint.X, intersectionPoint.Z, red, green, blue, reflectedEnergy);
+							surface.pixels[x + y * surface.width] = intersection1.nearestPrim.GetColor(intersectionPoint.X, intersectionPoint.Z, red, green, blue, reflectedEnergy);
 						}
 					}
 					//DEBUG OUTPUT:
 					//Project rays
-					if (scene.ray.direction.Y == 0)
+					if (ray.direction.Y == 0)
 					{
 						if (x % 30 == 0)
 						{
+							float raylength = ray.length; //5000
+							if (ray.origin.X + raylength * ray.direction.X > 2) 
+								raylength = (2 - ray.origin.X) / ray.direction.X; 
+							if (ray.origin.Z + raylength * ray.direction.Z > 3) //3 verwijst naar het coordinatensysteem van TY, dat kan netter
+								raylength = (3 - ray.origin.Z) / ray.direction.Z;
+
 							surface.Line(
-								TX(scene.ray.origin.X), 
-								TY(scene.ray.origin.Z), 
-								TX(scene.ray.origin.X + scene.ray.length * scene.ray.direction.X), 
-								TY(scene.ray.origin.Z + scene.ray.length * scene.ray.direction.Z),
+								TX(ray.origin.X), 
+								TY(ray.origin.Z), 
+								TX(ray.origin.X + raylength * ray.direction.X), 
+								TY(ray.origin.Z + raylength * ray.direction.Z),
 								MainScene.MixColor(255, 255,0));
 						}
 
 					}
-					scene.ray.length = MainScene.rayLength;
+					ray.length = MainScene.rayLength;
 				}
 			}
 			//MORE DEBUG OUTPUT
@@ -323,12 +347,15 @@ namespace Template
 				{
 					for (float i = 0; i < 2 * Math.PI; i = i + pistep)
 					{
-						surface.Line(
-							TX((float)(((Sphere)prim).position.X + Math.Cos(i) * ((Sphere)prim).radius)), 
-							TY((float)(((Sphere)prim).position.Z + Math.Sin(i) * ((Sphere)prim).radius)), 
-							TX((float)(((Sphere)prim).position.X + Math.Cos(i + pistep) * ((Sphere)prim).radius)), 
-							TY((float)(((Sphere)prim).position.Z + Math.Sin(i + pistep) * ((Sphere)prim).radius)), 
-							255);
+						if (TX((float)(((Sphere)prim).position.X + Math.Cos(i) * ((Sphere)prim).radius)) < (surface.width / 2))
+						{
+							surface.Line(
+							TX((float)(((Sphere)prim).position.X + Math.Cos(i) * ((Sphere)prim).radius)),
+							TY((float)(((Sphere)prim).position.Z + Math.Sin(i) * ((Sphere)prim).radius)),
+							TX((float)(((Sphere)prim).position.X + Math.Cos(i + pistep) * ((Sphere)prim).radius)),
+							TY((float)(((Sphere)prim).position.Z + Math.Sin(i + pistep) * ((Sphere)prim).radius)),
+							MainScene.MixColor( (int)prim.mat.red, (int)prim.mat.green, (int)prim.mat.blue));
+						}
 					}
 				}
 			}
@@ -350,11 +377,6 @@ namespace Template
 			//4*160;4*100
 			return Convert.ToInt32(scale);
 		}
-
-	}
-
-	class Application 
-	{ 
 
 	}
 

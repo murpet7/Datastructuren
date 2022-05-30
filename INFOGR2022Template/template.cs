@@ -33,7 +33,7 @@ namespace Template
 			GL.Enable( EnableCap.Texture2D );
 			GL.Disable( EnableCap.DepthTest );
 			GL.Hint( HintTarget.PerspectiveCorrectionHint, HintMode.Nicest );
-			ClientSize = new Size( 1024, 512 );
+			ClientSize = new Size(1024, 512 );
 			app = new MainScene();
 			app.screen = new Surface( Width, Height );
 			Sprite.target = app.screen;
@@ -54,11 +54,29 @@ namespace Template
 			GL.LoadIdentity();
 			GL.Ortho( -1.0, 1.0, -1.0, 1.0, 0.0, 4.0 );
 		}
-		protected override void OnUpdateFrame( FrameEventArgs e )
+		protected override void OnUpdateFrame(FrameEventArgs e)
 		{
 			// called once per frame; app logic
 			var keyboard = OpenTK.Input.Keyboard.GetState();
-			if( keyboard[OpenTK.Input.Key.Escape] ) terminated = true;
+			if (keyboard[OpenTK.Input.Key.Escape]) terminated = true;
+
+			if (keyboard.IsKeyDown(OpenTK.Input.Key.W))
+			{
+				app.raytracer.cam.position += app.raytracer.cam.lookingDirection * 0.01f;
+			}
+			if (keyboard.IsKeyDown(OpenTK.Input.Key.A))
+			{
+				app.raytracer.cam.position += Vector3.Normalize(Vector3.Cross(app.raytracer.cam.lookingDirection, app.raytracer.cam.upDirection)) *0.01f;
+			}
+			if (keyboard.IsKeyDown(OpenTK.Input.Key.S))
+			{
+				app.raytracer.cam.position -= app.raytracer.cam.lookingDirection * 0.01f;
+			}
+			if (keyboard.IsKeyDown(OpenTK.Input.Key.D))
+            {
+				app.raytracer.cam.position -= Vector3.Normalize(Vector3.Cross(app.raytracer.cam.lookingDirection, app.raytracer.cam.upDirection)) *0.01f;
+			}
+
 		}
 		protected override void OnRenderFrame( FrameEventArgs e )
 		{
