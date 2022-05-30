@@ -35,10 +35,10 @@ namespace Template
 			scene = new Scene();
 			
 			primitives = new List<Primitive>();
-			sphere1 = new Sphere(new Vector3(0, 0, 2f), .1f, new Material(new Color4(0, 0, 255, 1), true));
-			sphere2 = new Sphere(new Vector3(-1, 0, 1.5f), .1f, new Material(new Color4(255, 0, 0, 1), true));
-			sphere3 = new Sphere(new Vector3(2, 0, 2f), .4f, new Material(new Color4(0, 0, 255, 1), true));
-			plane1 = new Plane(new Vector3(0, 1, 0), -1, new Material(new Color4(255, 0, 255, 1), false, true));
+			sphere1 = new Sphere(new Vector3(0, 0, 2f), .1f, new Material(new Color4(0, 0, 255, .9f), true));
+			sphere2 = new Sphere(new Vector3(-1, 0, 1.5f), .1f, new Material(new Color4(255, 0, 0, .9f), true));
+			sphere3 = new Sphere(new Vector3(2, 0, 2f), .4f, new Material(new Color4(0, 0, 255, .9f), true));
+			plane1 = new Plane(new Vector3(0, 1, 0), -1, new Material(new Color4(255, 0, 255, .9f), false, true));
 
 			scene.primitives.Add(sphere1);
 			scene.primitives.Add(sphere2);
