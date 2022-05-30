@@ -27,18 +27,18 @@ namespace Template
 		public void Init()
 		{
 			primitives = new List<Primitive>();
-			sphere1 = new Sphere(new Vector3(0, 1.2f, 5f), 1.1f, new Clr(0, 0, 255));
-			sphere2 = new Sphere(new Vector3(-1, 1, 1.5f), .2f, new Clr(255, 0, 0));
-			sphere3 = new Sphere(new Vector3(-1, 1, 2f), .4f, new Clr(0, 0, 255));
-			plane1 = new Plane(new Vector3(0, 1, 0), 2, new Clr(255, 0, 255));
+			sphere1 = new Sphere(new Vector3(0, .1f, 1f), .1f, new Material(0, 0, 255));
+			sphere2 = new Sphere(new Vector3(-1, 1, 1.5f), .1f, new Material(255, 0, 0));
+			sphere3 = new Sphere(new Vector3(-1, 1, 2f), .4f, new Material(0, 0, 255));
+			plane1 = new Plane(new Vector3(0, 1, 0), 2, new Material(255, 0, 255, false, false));
 			primitives.Add(sphere1);
-			primitives.Add(sphere2);
-			primitives.Add(sphere3);
+			//primitives.Add(sphere2);
+			//primitives.Add(sphere3);
 			primitives.Add(plane1);
 			camera = new Camera();
 			ray = new Ray(Vector3.Zero, Vector3.One, rayLength);
 			raytracer = new Raytracer(this, camera, screen);
-			light1 = new Light(new Vector3(0, 10, 0), new Color4(1f, 0, 0, 1f));
+			light1 = new Light(new Vector3(1f, 1f, .5f), new Color4(1f, 0, 0, 1f));
 			lights = new List<Light>();
 			lights.Add(light1);
 		}
@@ -65,7 +65,7 @@ namespace Template
 			//4*160;4*100
 			return Convert.ToInt32(shift);
 		}
-		public int MixColor(int red, int green, int blue)
+		public static int MixColor(int red, int green, int blue)
 		{
 			return (red << 16) + (green << 8) + blue;
 		}
@@ -107,7 +107,24 @@ namespace Template
 
 	class Primitive
 	{
-		public Clr color;
+		public Material mat;
+
+		public int GetColor(float u, float v)
+        {
+			int color = ((int)u + (int)v) & 1;
+			if (color == 0)
+            {
+				return MainScene.MixColor(255, 255, 255);
+            }
+            else
+            {
+				return 0;
+            }
+        }
+		public int GetColor(float energy, Intersection intersection)
+        {
+			return MainScene.MixColor((int)(intersection.nearestPrim.mat.red * energy), (int)(intersection.nearestPrim.mat.green * energy), (int)(intersection.nearestPrim.mat.blue * energy));
+		}
 	}
 
 	class Sphere : Primitive
@@ -115,11 +132,11 @@ namespace Template
 		public Vector3 position;
 		public float radius;
 
-		public Sphere(Vector3 position, float radius, Clr color)
+		public Sphere(Vector3 position, float radius, Material mat)
 		{
 			this.position = position;
 			this.radius = radius;
-			this.color = color;
+			this.mat = mat;
 		}
 	}
 
@@ -128,11 +145,11 @@ namespace Template
 		public Vector3 normal;
 		public float distance;
 
-		public Plane(Vector3 normal, float distance, Clr color)
+		public Plane(Vector3 normal, float distance, Material color)
 		{
 			this.normal = normal;
 			this.distance = distance;
-			this.color = color;
+			this.mat = color;
 		}
 	}
 
@@ -247,7 +264,6 @@ namespace Template
 					if (intersection1.nearestPrim != null)
                     {
 						Vector3 intersectionPoint = scene.ray.origin + scene.ray.direction * scene.ray.length;
-						surface.pixels[x + y * scene.screen.width] = scene.MixColor(intersection1.nearestPrim.color.red / 2, intersection1.nearestPrim.color.green / 2, intersection1.nearestPrim.color.blue / 2);
 						foreach (Light light in scene.lights)
                         {
 							Vector3 direction = Vector3.Normalize(new Vector3(light.position - intersectionPoint));
@@ -255,11 +271,17 @@ namespace Template
 							Ray reflectionRay = new Ray(intersectionPoint, direction, length);
 							Intersection intersection2 = CheckCollisions(reflectionRay);
 							
+							float reflectedEnergy = Math.Min(1, Math.Max(0.1f, 1 / (float)Math.Pow(length, 2) * 1f * Vector3.Dot(Vector3.Normalize(intersection1.normal), direction)));
 
-							int baseColor = scene.MixColor(intersection1.nearestPrim.color.red, intersection1.nearestPrim.color.green, intersection1.nearestPrim.color.blue);
-							float reflectedEnergy = (1 / (float)Math.Pow(length, 2)) * baseColor * .5f * Math.Max(0.1f, Vector3.Dot(Vector3.Normalize(intersection1.normal), direction));
-							int newColor = scene.MixColor((int)(intersection1.nearestPrim.color.red * reflectedEnergy / 256 / 256), (int)(intersection1.nearestPrim.color.green * reflectedEnergy / 256), (int)(intersection1.nearestPrim.color.blue * reflectedEnergy));
-							surface.pixels[x + y * scene.screen.width] = newColor;
+                            if (!intersection1.nearestPrim.mat.isCheckered)
+                            {
+								surface.pixels[x + y * scene.screen.width] = intersection1.nearestPrim.GetColor(reflectedEnergy, intersection1);
+							}
+                            else
+                            {
+								surface.pixels[x + y * scene.screen.width] = intersection1.nearestPrim.GetColor(intersectionPoint.X, intersectionPoint.Y);
+							}
+							
 							scene.ray.length = MainScene.rayLength;
 						}
 					}
@@ -273,18 +295,20 @@ namespace Template
 
 	}
 
-	class Clr
+	class Material
     {
-		public int red;
-		public int green;
-		public int blue;
-		public Clr(int red, int green, int blue)
+		public float red;
+		public float green;
+		public float blue;
+		public bool isMirror;
+		public bool isCheckered;
+		public Material(float red, float green, float blue, bool isMirror = false, bool isCheckered = false)
 		{
 			this.red = red;
 			this.green = green;
 			this.blue = blue;
+			this.isMirror = isMirror;
+			this.isCheckered = isCheckered;
 		}
 	}
-
-	
 }
