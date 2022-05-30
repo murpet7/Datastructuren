@@ -28,7 +28,7 @@ namespace Template
 		public void Init()
 		{
 			primitives = new List<Primitive>();
-			sphere1 = new Sphere(new Vector3(0, -.9f, 2f), .1f, new Material(0, 0, 255));
+			sphere1 = new Sphere(new Vector3(0, -.8f, 2f), .1f, new Material(0, 0, 255));
 			sphere2 = new Sphere(new Vector3(-1, 1, 1.5f), .1f, new Material(255, 0, 0));
 			sphere3 = new Sphere(new Vector3(-1, 1, 2f), .4f, new Material(0, 0, 255));
 			plane1 = new Plane(new Vector3(0, 1, 0), -1, new Material(255, 0, 255, false, true));
