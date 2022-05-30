@@ -20,6 +20,7 @@ namespace Template
 		Raytracer raytracer;
 		public List<Primitive> primitives;
 		Light light1;
+		Light light2;
 		public List<Light> lights;
 
 		public const int rayLength = int.MaxValue;
@@ -39,8 +40,10 @@ namespace Template
 			ray = new Ray(Vector3.Zero, Vector3.One, rayLength);
 			raytracer = new Raytracer(this, camera, screen);
 			light1 = new Light(new Vector3(.2f, 1f, 2f), new Color4(255, 255, 255, 2f));
+			light2 = new Light(new Vector3(-.9f, -.5f, 2f), new Color4(255, 255, 255, 1f));
 			lights = new List<Light>();
 			lights.Add(light1);
+			lights.Add(light2);
 		}
 		// tick: renders one frame
 		public void Tick()
@@ -258,7 +261,10 @@ namespace Template
 					if (intersection1.nearestPrim != null)
                     {
 						Vector3 intersectionPoint = scene.ray.origin + scene.ray.direction * scene.ray.length;
-						float reflectedEnergy = 0;
+						float reflectedEnergy = .2f;
+						float red = 0;
+						float green = 0;
+						float blue = 0;
 						foreach (Light light in scene.lights)
                         {
 							Vector3 direction = Vector3.Normalize(new Vector3(light.position - intersectionPoint));
@@ -267,21 +273,21 @@ namespace Template
 							Intersection intersection2 = CheckCollisions(reflectionRay);
 							if(intersection2.nearestPrim == null)
                             {
-								reflectedEnergy += 1 / (float)Math.Pow(length, 2) * light.intensity.A * Vector3.Dot(Vector3.Normalize(intersection1.normal), direction);
-								float red = Math.Min(light.intensity.R, intersection1.nearestPrim.mat.red);
-								float green = Math.Min(light.intensity.G, intersection1.nearestPrim.mat.red);
-								float blue = Math.Min(light.intensity.B, intersection1.nearestPrim.mat.blue);
-
-								if (!intersection1.nearestPrim.mat.isCheckered)
-								{
-									surface.pixels[x + y * scene.screen.width] = intersection1.nearestPrim.GetColor(red, green, blue, reflectedEnergy);
-								}
-								else
-								{
-									surface.pixels[x + y * scene.screen.width] = intersection1.nearestPrim.GetColor(intersectionPoint.X, intersectionPoint.Z, red, green, blue, reflectedEnergy);
-								}
+								reflectedEnergy += Math.Max(0, 1 / (float)Math.Pow(length, 2) * light.intensity.A * Vector3.Dot(Vector3.Normalize(intersection1.normal), direction));
+								red = Math.Min(light.intensity.R + red, intersection1.nearestPrim.mat.red);
+								green = Math.Min(light.intensity.G + green, intersection1.nearestPrim.mat.green);
+								blue = Math.Min(light.intensity.B + blue, intersection1.nearestPrim.mat.blue);
 							}
 							scene.ray.length = MainScene.rayLength;
+						}
+						reflectedEnergy = Math.Min(reflectedEnergy, 1);
+						if (!intersection1.nearestPrim.mat.isCheckered)
+						{
+							surface.pixels[x + y * scene.screen.width] = intersection1.nearestPrim.GetColor(red, green, blue, reflectedEnergy);
+						}
+						else
+						{
+							surface.pixels[x + y * scene.screen.width] = intersection1.nearestPrim.GetColor(intersectionPoint.X, intersectionPoint.Z, red, green, blue, reflectedEnergy);
 						}
 					}
 				}
