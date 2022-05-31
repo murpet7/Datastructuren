@@ -26,6 +26,11 @@ namespace Template
 		static int screenID;            // unique integer identifier of the OpenGL texture
 		static MainScene app;       // instance of the application
 		static bool terminated = false; // application terminates gracefully when this is true
+		
+		Vector2 lastpos;
+		float sensitivity;
+		public float yaw;
+		public float pitch;
 		protected override void OnLoad( EventArgs e )
 		{
 			// called during application initialization
@@ -33,12 +38,14 @@ namespace Template
 			GL.Enable( EnableCap.Texture2D );
 			GL.Disable( EnableCap.DepthTest );
 			GL.Hint( HintTarget.PerspectiveCorrectionHint, HintMode.Nicest );
-			ClientSize = new Size(1024, 512 );
+			ClientSize = new Size(1024, 512);
 			app = new MainScene();
 			app.screen = new Surface( Width, Height );
 			Sprite.target = app.screen;
 			screenID = app.screen.GenTexture();
 			app.Init();
+			CursorVisible = false;
+			CursorGrabbed = true;
 		}
 		protected override void OnUnload( EventArgs e )
 		{
@@ -60,23 +67,57 @@ namespace Template
 			var keyboard = OpenTK.Input.Keyboard.GetState();
 			if (keyboard[OpenTK.Input.Key.Escape]) terminated = true;
 
-			if (keyboard.IsKeyDown(OpenTK.Input.Key.W))
+			if (!Focused)
+            {
+				return;
+            }
+
+			if (keyboard.IsKeyDown(OpenTK.Input.Key.W)) //forward
 			{
 				app.raytracer.cam.position += app.raytracer.cam.lookingDirection * 0.01f;
+				app.raytracer.cam.Update();
 			}
-			if (keyboard.IsKeyDown(OpenTK.Input.Key.A))
+			if (keyboard.IsKeyDown(OpenTK.Input.Key.A)) //left
 			{
 				app.raytracer.cam.position += Vector3.Normalize(Vector3.Cross(app.raytracer.cam.lookingDirection, app.raytracer.cam.upDirection)) *0.01f;
-			}
-			if (keyboard.IsKeyDown(OpenTK.Input.Key.S))
-			{
-				app.raytracer.cam.position -= app.raytracer.cam.lookingDirection * 0.01f;
-			}
-			if (keyboard.IsKeyDown(OpenTK.Input.Key.D))
-            {
-				app.raytracer.cam.position -= Vector3.Normalize(Vector3.Cross(app.raytracer.cam.lookingDirection, app.raytracer.cam.upDirection)) *0.01f;
+				app.raytracer.cam.Update();
 			}
 
+			if (keyboard.IsKeyDown(OpenTK.Input.Key.S)) //backward
+			{
+				app.raytracer.cam.position -= app.raytracer.cam.lookingDirection * 0.01f;
+				app.raytracer.cam.Update();
+			}
+			if (keyboard.IsKeyDown(OpenTK.Input.Key.D)) //right
+            {
+				app.raytracer.cam.position -= Vector3.Normalize(Vector3.Cross(app.raytracer.cam.lookingDirection, app.raytracer.cam.upDirection)) *0.01f;
+				app.raytracer.cam.Update();
+			}
+			if (keyboard.IsKeyDown(OpenTK.Input.Key.Space)) //up
+			{
+				app.raytracer.cam.position += app.raytracer.cam.upDirection * 0.01f;
+				app.raytracer.cam.Update();
+			}
+			if (keyboard.IsKeyDown(OpenTK.Input.Key.ShiftLeft)) //down
+			{
+				app.raytracer.cam.position -= app.raytracer.cam.upDirection * 0.01f;
+				app.raytracer.cam.Update();
+			}
+
+			/*
+			var mouse = OpenTK.Input.Mouse.GetState();
+			
+			float deltaX = mouse.X - lastpos.X;
+			float deltaY = mouse.Y - lastpos.Y;
+			lastpos = new Vector2(deltaX, deltaY);
+			yaw += deltaX * sensitivity;
+			pitch -= deltaY * sensitivity;
+
+			app.raytracer.cam.lookingDirection.X = (float)Math.Cos(MathHelper.DegreesToRadians(pitch)) * (float)Math.Cos(MathHelper.DegreesToRadians(yaw));
+			app.raytracer.cam.lookingDirection.Y = (float)Math.Sin(MathHelper.DegreesToRadians(pitch));
+			app.raytracer.cam.lookingDirection.Z = (float)Math.Cos(MathHelper.DegreesToRadians(pitch)) * (float)Math.Sin(MathHelper.DegreesToRadians(yaw));
+			app.raytracer.cam.lookingDirection = Vector3.Normalize(app.raytracer.cam.lookingDirection);
+*/
 		}
 		protected override void OnRenderFrame( FrameEventArgs e )
 		{

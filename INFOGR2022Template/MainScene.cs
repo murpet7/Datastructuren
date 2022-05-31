@@ -38,7 +38,7 @@ namespace Template
 			sphere1 = new Sphere(new Vector3(0, 0, 2f), .1f, new Material(new Color4(0, 0, 255, .9f), true));
 			sphere2 = new Sphere(new Vector3(-1, 0, 1.5f), .1f, new Material(new Color4(255, 0, 0, .9f), true));
 			sphere3 = new Sphere(new Vector3(2, 0, 2f), .4f, new Material(new Color4(0, 0, 255, .9f), true));
-			plane1 = new Plane(new Vector3(0, 1, 0), -1, new Material(new Color4(255, 0, 255, .9f), false, true));
+			plane1 = new Plane(new Vector3(0, 1, 0), -0.75f, new Material(new Color4(255, 0, 255, .9f), true, true));
 
 			scene.primitives.Add(sphere1);
 			scene.primitives.Add(sphere2);
@@ -57,11 +57,7 @@ namespace Template
 			
 			raytracer = new Raytracer(scene, camera, screen);
 
-			
-			
-
 			//app = new Application(raytracer);
-			
 		}
 		// tick: renders one frame
 		public void Tick()
@@ -109,20 +105,40 @@ namespace Template
     {
 		//FOV moet worden toegevoegd
 		public Vector3 position;
+		public Vector3 target;
 		public Vector3 lookingDirection;
+		public Vector3 up;
 		public Vector3 upDirection;
+		public Vector3 rightDirection;
 		public Matrix4 viewSpace;
 		public Vector3 scrnTL;
 		public Vector3 scrnBR;
+		public Vector3 planeCenter;
 
 		public Camera()
 		{
-			position = new Vector3(0f, 0f, 0f);
+			position = new Vector3(0f, 0f, 0.5f);
+			target = Vector3.Zero;
 			lookingDirection = new Vector3(0f, 0f, 1f);
-			upDirection = new Vector3(0f, 1f, 0f);
-			viewSpace = Matrix4.LookAt(position, lookingDirection, upDirection);
-			scrnTL = new Vector3(-1, 1, 1);
-			scrnBR = new Vector3(1, -1, 1);
+			//lookingDirection = Vector3.Normalize(position - target);
+			up = Vector3.UnitY;
+			rightDirection = Vector3.Normalize(Vector3.Cross(up, lookingDirection));
+			upDirection = Vector3.Cross(lookingDirection, rightDirection);
+			viewSpace = Matrix4.LookAt(position, target, up);
+
+			planeCenter = position + 1f * lookingDirection; //1f = distance
+			scrnTL = planeCenter + upDirection - rightDirection;
+			scrnBR = planeCenter - upDirection + rightDirection;
+		}
+
+		public void Update()
+        {
+			//lookingDirection = Vector3.Normalize(position - target);
+			rightDirection = Vector3.Normalize(Vector3.Cross(up, lookingDirection));
+			upDirection = Vector3.Cross(lookingDirection, rightDirection);
+			planeCenter = position + 1f * lookingDirection;
+			scrnTL = planeCenter + upDirection - rightDirection;
+			scrnBR = planeCenter - upDirection + rightDirection;
 		}
     }
 
@@ -220,8 +236,8 @@ namespace Template
 
 		public void IntersectPlane(Plane plane, Ray ray) 
 		{
-			float t = -(Vector3.Dot(plane.normal, new Vector3(-plane.distance) - ray.origin)) / (Vector3.Dot(plane.normal, ray.direction));
-			if (t < 0) // the ray does not hit the surface, that is, the surface is "behind" the ray
+			float t = (Vector3.Dot(plane.normal, new Vector3(plane.distance) - ray.origin)) / (Vector3.Dot(plane.normal, ray.direction));
+			if (t < 0.0001) // the ray does not hit the surface, that is, the surface is "behind" the ray
 				return;
 
 			if (t < ray.length)
@@ -288,7 +304,6 @@ namespace Template
             }
 			return intersection;
 		}
-
 		public void Render()
 		{
 			for (int y = 0; y < surface.height; y++)
@@ -355,7 +370,6 @@ namespace Template
 								TY(ray.origin.Z + raylength * ray.direction.Z),
 								MainScene.MixColor(255, 255,0));
 						}
-
 					}
 					ray.length = MainScene.rayLength;
 				}
