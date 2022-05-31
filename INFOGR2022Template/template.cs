@@ -28,10 +28,9 @@ namespace Template
 		static MainScene app;       // instance of the application
 		static bool terminated = false; // application terminates gracefully when this is true
 
-		float sensitivity;
-		float speed = 0.1f;
-		Vector3 position = new Vector3(0.0f, 0.0f, 3.0f);
-		Vector3 front = new Vector3(0.0f, 0.0f, -1.0f);
+		float sensitivity = 0.05f; //Mouse sensitivity
+		float speed = 0.1f;	//Walking speed
+
 		Vector3 up = new Vector3(0.0f, 1.0f, 0.0f);
 		bool firstmove = true;
 		Vector2 lastpos;
@@ -42,17 +41,14 @@ namespace Template
 			GL.Enable( EnableCap.Texture2D );
 			GL.Disable( EnableCap.DepthTest );
 			GL.Hint( HintTarget.PerspectiveCorrectionHint, HintMode.Nicest );
-			ClientSize = new Size(1024, 512);
+			ClientSize = new Size(400, 200);
 			app = new MainScene();
 			app.screen = new Surface( Width, Height );
 			Sprite.target = app.screen;
 			screenID = app.screen.GenTexture();
 			app.Init();
-			CursorVisible = true;
+			CursorVisible = false;
 			CursorGrabbed = true;
-			sensitivity = 0.05f;
-			
-			
 		}
 		protected override void OnUnload( EventArgs e )
 		{
@@ -74,38 +70,38 @@ namespace Template
 			var keyboard = OpenTK.Input.Keyboard.GetState();
 			if (keyboard[OpenTK.Input.Key.Escape]) terminated = true;
 
-			if (!Focused)
+			if (!Focused) //When screen is focussed exit this code
 			{
 				return;
 			}
 
-			if (keyboard.IsKeyDown(OpenTK.Input.Key.W)) //forward
+			if (keyboard.IsKeyDown(OpenTK.Input.Key.W)) //forward movement
 			{
 				app.raytracer.cam.position += app.raytracer.cam.lookingDirection * speed * (float)e.Time;
 
 			}
-			if (keyboard.IsKeyDown(OpenTK.Input.Key.A)) //left
+			if (keyboard.IsKeyDown(OpenTK.Input.Key.A)) //left movement
 			{
 				app.raytracer.cam.position += Vector3.Normalize(Vector3.Cross(app.raytracer.cam.lookingDirection, up)) * speed * (float)e.Time;
 
 			}
 
-			if (keyboard.IsKeyDown(OpenTK.Input.Key.S)) //backward
+			if (keyboard.IsKeyDown(OpenTK.Input.Key.S)) //backward movement
 			{
 				app.raytracer.cam.position -= app.raytracer.cam.lookingDirection * speed * (float)e.Time;
 
 			}
-			if (keyboard.IsKeyDown(OpenTK.Input.Key.D)) //right
+			if (keyboard.IsKeyDown(OpenTK.Input.Key.D)) //right movement
 			{
 				app.raytracer.cam.position -= Vector3.Normalize(Vector3.Cross(app.raytracer.cam.lookingDirection, up)) * speed * (float)e.Time;
 
 			}
-			if (keyboard.IsKeyDown(OpenTK.Input.Key.Space)) //up
+			if (keyboard.IsKeyDown(OpenTK.Input.Key.Space)) //up movement
 			{
 				app.raytracer.cam.position += up * speed * (float)e.Time;
 
 			}
-			if (keyboard.IsKeyDown(OpenTK.Input.Key.ShiftLeft)) //down
+			if (keyboard.IsKeyDown(OpenTK.Input.Key.ShiftLeft)) //down movement
 			{
 				app.raytracer.cam.position -= up * speed * (float)e.Time;
 
@@ -114,18 +110,18 @@ namespace Template
 
 			float deltaX, deltaY;
 
-			if (firstmove)
+			if (firstmove) //Save current mouse position as last position if this was the first move
 			{
 				lastpos = new Vector2(mouse.X, mouse.Y);
 				firstmove = false;
 			}
-			else
+			else //Find difference between current mouse position and last mouse position
 			{
 				deltaX = mouse.X - lastpos.X;
 				deltaY = mouse.Y - lastpos.Y;
 				lastpos = new Vector2(mouse.X, mouse.Y);
 
-				app.raytracer.cam.yaw -= deltaX * sensitivity;
+				app.raytracer.cam.yaw -= deltaX * sensitivity; //yaw = look left/look right
 
 				if (app.raytracer.cam.pitch > 89.0f)
 				{
@@ -137,24 +133,23 @@ namespace Template
 				}
 				else
 				{
-					app.raytracer.cam.pitch -= deltaY * sensitivity;
+					app.raytracer.cam.pitch -= deltaY * sensitivity; //pitch = look up/look down
 				}
 
+				//Change lookingdirection according to new pitch and yaw values
 				app.raytracer.cam.lookingDirection.X = (float)Math.Cos(MathHelper.DegreesToRadians(app.raytracer.cam.pitch)) * (float)Math.Cos(MathHelper.DegreesToRadians(app.raytracer.cam.yaw));
 				app.raytracer.cam.lookingDirection.Y = (float)Math.Sin(MathHelper.DegreesToRadians(app.raytracer.cam.pitch));
 				app.raytracer.cam.lookingDirection.Z = (float)Math.Cos(MathHelper.DegreesToRadians(app.raytracer.cam.pitch)) * (float)Math.Sin(MathHelper.DegreesToRadians(app.raytracer.cam.yaw));
 				app.raytracer.cam.lookingDirection = Vector3.Normalize(app.raytracer.cam.lookingDirection);
 
-
-
-				app.raytracer.cam.Update();
+				app.raytracer.cam.Update(); //update the camera variables
 			}
 		}
 
 		protected override void OnMouseMove(MouseMoveEventArgs e)
         {
 			
-			Mouse.SetPosition(app.screen.width, app.screen.height);
+			Mouse.SetPosition(app.screen.width/2, app.screen.height/2); //move mouse to middle of the screen
 			
 
 			base.OnMouseMove(e);

@@ -13,29 +13,29 @@ namespace Template
 	{
 		// member variables
 		public Surface screen;
-		
+		public Camera camera;
+		public Raytracer raytracer;
+		public Scene scene;
+
+		//declare primitives
 		Sphere sphere1;
 		Sphere sphere2;
 		Sphere sphere3;
 		Plane plane1;
 		Triangle triangle1;
-		public Camera camera;
-		public Ray ray;
-		public Raytracer raytracer;
-		public List<Primitive> primitives;
+
+		//declare lights
 		Light light1;
 		Light light2;
-		public List<Light> lights;
-		public Application app;
-		public Scene scene;
-
+		
+		//set standard raylength (for debugger)
 		public const int rayLength = 5000;
 		// initialize
 		public void Init()
 		{
 			scene = new Scene();
-			
-			primitives = new List<Primitive>();
+			camera = new Camera();
+
 			sphere1 = new Sphere(new Vector3(0, 0, 2f), .2f, new Material(new Color4(0, 0, 255, .9f), true));
 			sphere2 = new Sphere(new Vector3(-1, 0, 1.5f), .2f, new Material(new Color4(255, 0, 0, .9f), true));
 			sphere3 = new Sphere(new Vector3(2, 0, 2f), .2f, new Material(new Color4(0, 0, 255, .9f), true));
@@ -50,42 +50,35 @@ namespace Template
 
 			light1 = new Light(new Vector3(.2f, 1f, 2f), new Color4(255, 255, 255, 2f));
 			light2 = new Light(new Vector3(-.9f, -.5f, 2f), new Color4(255, 255, 255, 1f));
-			lights = new List<Light>();
 
 			scene.lights.Add(light1);
 			scene.lights.Add(light2);
 
-			camera = new Camera();
-			ray = new Ray(Vector3.Zero, Vector3.One, rayLength);
-			
+			//initialise the raytracer
 			raytracer = new Raytracer(scene, camera, screen);
-
-			//app = new Application(raytracer);
 		}
 		// tick: renders one frame
 		public void Tick()
 		{
 			screen.Clear( 0 );
-			raytracer.Render();
+			raytracer.Render(); //render on every tick
 		}
 
-
-		public int TX(float point)
+		public int TX(float point) //To transform the X axis for the debugger
 		{
 			float shift = point + 2;
 			float scale = shift * (screen.width / 4);
 			return Convert.ToInt32(scale);
 		}
 
-		public int TY(float point)
+		public int TY(float point) //To transform the Y axis for the debugger
 		{
 			float invert = -point;
 			float scale = invert * (screen.width / 4);
 			float shift = scale + (screen.height / 2);
-			//4*160;4*100
 			return Convert.ToInt32(shift);
 		}
-		public static int MixColor(int red, int green, int blue)
+		public static int MixColor(int red, int green, int blue) //To mix RGB values
 		{
 			return (red << 16) + (green << 8) + blue;
 		}
@@ -96,7 +89,7 @@ namespace Template
 		public Vector3 direction;
 		public float length;
 
-		public Ray(Vector3 origin, Vector3 direction, float length)
+		public Ray(Vector3 origin, Vector3 direction, float length) //Initialise Ray object
 		{
 			this.origin = origin;
 			this.direction = direction;
@@ -106,40 +99,43 @@ namespace Template
 
 	class Camera
     {
-		//FOV moet worden toegevoegd
+		//Pitch & yaw, used for mouse movement
 		public float yaw = 90;
 		public float pitch;
+
+		//Camera position and sky position
 		public Vector3 position;
-		public Vector3 target;
-		public Vector3 lookingDirection;
 		public Vector3 up;
+		
+		//Camera directions
+		public Vector3 lookingDirection;
 		public Vector3 upDirection;
 		public Vector3 rightDirection;
-		public Matrix4 viewSpace;
+
+		//Plane Position, Top Left and Bottom right
+		public Vector3 planeCenter;
 		public Vector3 scrnTL;
 		public Vector3 scrnBR;
-		public Vector3 planeCenter;
-		public float fov = 1;
+		
 
-		public Camera()
+		//field of view
+		public float fov = 1f;
+
+		public Camera() //Initialise and compute standard camera values
 		{
-			position = new Vector3(0f, 0f, 1f);
-			target = Vector3.Zero;
-			lookingDirection = new Vector3(0f, 0f, 1f);
-			//lookingDirection = Vector3.Normalize(position - target);
 			up = Vector3.UnitY;
+			position = new Vector3(0f, 0f, 1f);
+			lookingDirection = new Vector3(0f, 0f, 1f);
 			rightDirection = Vector3.Normalize(Vector3.Cross(up, lookingDirection));
 			upDirection = Vector3.Cross(lookingDirection, rightDirection);
-			viewSpace = Matrix4.LookAt(position, target, up);
 
-			planeCenter = position + fov * lookingDirection; //1f = distance
+			planeCenter = position + fov * lookingDirection;
 			scrnTL = planeCenter + upDirection - rightDirection;
 			scrnBR = planeCenter - upDirection + rightDirection;
 		}
 
-		public void Update()
+		public void Update() //Update camera values
         {
-			//lookingDirection = Vector3.Normalize(position - target);
 			rightDirection = Vector3.Normalize(Vector3.Cross(up, lookingDirection));
 			upDirection = Vector3.Normalize(Vector3.Cross(lookingDirection, rightDirection));
 			planeCenter = position + fov * lookingDirection;
@@ -150,7 +146,7 @@ namespace Template
 
 	class Primitive
 	{
-		public Material mat;
+		public Material mat; //stores material properties
 
 		public Color4 GetColor(float x, float z, Color4 color, float energy)
         {
@@ -172,7 +168,7 @@ namespace Template
 		}
 	}
 
-	class Sphere : Primitive
+	class Sphere : Primitive //stores sphere properties
 	{
 		public Vector3 position;
 		public float radius;
@@ -185,7 +181,7 @@ namespace Template
 		}
 	}
 
-	class Plane : Primitive
+	class Plane : Primitive //stores plane properties
 	{
 		public Vector3 normal;
 		public float distance;
@@ -197,8 +193,7 @@ namespace Template
 			this.mat = color;
 		}
 	}
-
-	class Triangle : Primitive
+	class Triangle : Primitive //stores triangle properties
 	{
 		public Vector3 p0;
 		public Vector3 p1;
@@ -213,7 +208,7 @@ namespace Template
 		}
 	}
 
-	class Light
+	class Light //stores light properties
     {
 		public Vector3 position;
 		public Color4 intensity; 
@@ -225,14 +220,14 @@ namespace Template
 		}
     }
 
-	class Scene 
+	class Scene //stores all primitives and lights in the scene
 	{
 		public List<Primitive> primitives = new List<Primitive>();
 		public List<Light> lights = new List<Light>();
 
 		//Scene level intersect
 	}
-	class Intersection 
+	class Intersection //used to calculate and store intersections of rays and primitives
 	{
 		public Primitive nearestPrim;
 		public Vector3 normal;
@@ -268,7 +263,6 @@ namespace Template
 				normal = plane.normal;
 			}
 		}
-
 		public void IntersectTriangle(Ray ray, Triangle triangle)
 		{
 			float hit;
@@ -294,12 +288,8 @@ namespace Template
 			}
 		}
 
-		//normaallijn moet nog berekend worden bij een intersect
-		//Intersect werkt niet als de ray in de sphere begint
-		//Plane intersect moet nog worden gemaakt
-		//Distance werkt niet vgm
 	}
-	class Raytracer
+	class Raytracer 
 	{
 		public Scene scene;
 		public Camera cam;
@@ -316,7 +306,7 @@ namespace Template
 			this.surface = surface;
 		}
 
-		public Intersection CheckCollisions(Ray ray, int i)
+		public Intersection CheckCollisions(Ray ray, int i) //used to encapsulate the different types of intersections
 		{
 			Intersection intersection = new Intersection();
 			foreach (Primitive primitive in scene.primitives)
@@ -359,7 +349,7 @@ namespace Template
             }
 			return intersection;
 		}
-		public void Render()
+		public void Render() //Renders the pixels on the plane surface
 		{
 			p0 = cam.planeCenter + cam.upDirection - cam.rightDirection;
 			p1 = cam.planeCenter + cam.upDirection + cam.rightDirection;
@@ -371,25 +361,25 @@ namespace Template
 
 			for (int y = 0; y < surface.height; y++)
 			{
-				for (int x = surface.width - surface.width / 2; x < surface.width; x++) //2e helft van het scherm tot eind
+				for (int x = surface.width - surface.width / 2; x < surface.width; x++) //Renders on second half of the screen
 				{
-					a = (float)(x - surface.width / 2) / (float)(surface.width / 2); //[0:1]
-					b = (float)y / (float)surface.height; //[0:1]
+					a = (float)(x - surface.width / 2) / (float)(surface.width / 2); //a = [0:1]
+					b = (float)y / (float)surface.height; //b = [0:1]
 
-					Vector3 screenPoint = p0 + (a * u) + (b * v);
-					Ray ray = new Ray(cam.position, Vector3.Normalize(screenPoint - cam.position), MainScene.rayLength);
+					Vector3 screenPoint = p0 + (a * u) + (b * v); //Calculate point on the plane of the current ray
+					Ray ray = new Ray(cam.position, Vector3.Normalize(screenPoint - cam.position), MainScene.rayLength); //calculate the direction of the ray going through the point in the plane
 
 
 					Intersection intersection1 = CheckCollisions(ray, 7); //check if ray intersects with an object in the scene
 
-					if (intersection1.nearestPrim != null)
+					if (intersection1.nearestPrim != null) //If there is an intersection: 
 					{
 						Vector3 intersectionPoint = ray.origin + ray.direction * ray.length;
 						float reflectedEnergy = .2f;
 						float red = 0;
 						float green = 0;
 						float blue = 0;
-						foreach (Light light in scene.lights)
+						foreach (Light light in scene.lights) //Calculate lighting on primitives
 						{
 							Vector3 direction = Vector3.Normalize(new Vector3(light.position - intersectionPoint));
 							float length = new Vector3(light.position - intersectionPoint).Length;
@@ -435,6 +425,7 @@ namespace Template
 								MainScene.MixColor(255, 255,0));
 						}
 					}
+
 					ray.length = MainScene.rayLength;
 				}
 			}
@@ -485,7 +476,7 @@ namespace Template
 
 	}
 
-	class Material
+	class Material //Stores material properties
     {
 		public bool isMirror;
 		public bool isCheckered;
