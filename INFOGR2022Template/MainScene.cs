@@ -39,7 +39,7 @@ namespace Template
 			sphere1 = new Sphere(new Vector3(0, 0, 2f), .1f, new Material(new Color4(0, 0, 255, .9f), true));
 			sphere2 = new Sphere(new Vector3(-1, 0, 1.5f), .1f, new Material(new Color4(255, 0, 0, .9f), true));
 			sphere3 = new Sphere(new Vector3(2, 0, 2f), .4f, new Material(new Color4(0, 0, 255, .9f), true));
-			plane1 = new Plane(new Vector3(0, 1, 0), -.1f, new Material(new Color4(255, 255, 255, .9f), true, true));
+			plane1 = new Plane(new Vector3(0, 1, 0), -.2f, new Material(new Color4(255, 255, 255, .9f), true, true));
 			triangle1 = new Triangle(new Vector3(.2f, 0, 2f), new Vector3(.2f, .2f, 2f), new Vector3(0, 0, 2f), new Material(new Color4(255, 0, 255, .9f)));
 
 			scene.primitives.Add(sphere1);
