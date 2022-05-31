@@ -107,7 +107,7 @@ namespace Template
 	class Camera
     {
 		//FOV moet worden toegevoegd
-		public float yaw;
+		public float yaw = 90;
 		public float pitch;
 		public Vector3 position;
 		public Vector3 target;
@@ -142,7 +142,7 @@ namespace Template
 			//lookingDirection = Vector3.Normalize(position - target);
 			rightDirection = Vector3.Normalize(Vector3.Cross(up, lookingDirection));
 			upDirection = Vector3.Normalize(Vector3.Cross(lookingDirection, rightDirection));
-			planeCenter = position + fov* lookingDirection;
+			planeCenter = position + fov * lookingDirection;
 			scrnTL = planeCenter + upDirection - rightDirection;
 			scrnBR = planeCenter - upDirection + rightDirection;
 		}
@@ -417,7 +417,7 @@ namespace Template
 					}
 					//DEBUG OUTPUT:
 					//Project rays
-					if (ray.direction.Y == 0)
+					if (ray.direction.Y < 0.001 && ray.direction.Y > -0.001)
 					{
 						if (x % 30 == 0)
 						{
