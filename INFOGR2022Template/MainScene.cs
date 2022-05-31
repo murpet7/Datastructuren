@@ -104,6 +104,8 @@ namespace Template
 	class Camera
     {
 		//FOV moet worden toegevoegd
+		public float yaw;
+		public float pitch;
 		public Vector3 position;
 		public Vector3 target;
 		public Vector3 lookingDirection;
@@ -114,10 +116,11 @@ namespace Template
 		public Vector3 scrnTL;
 		public Vector3 scrnBR;
 		public Vector3 planeCenter;
+		public float fov = 1;
 
 		public Camera()
 		{
-			position = new Vector3(0f, 0f, 0.5f);
+			position = new Vector3(0f, 0f, 1f);
 			target = Vector3.Zero;
 			lookingDirection = new Vector3(0f, 0f, 1f);
 			//lookingDirection = Vector3.Normalize(position - target);
@@ -126,7 +129,7 @@ namespace Template
 			upDirection = Vector3.Cross(lookingDirection, rightDirection);
 			viewSpace = Matrix4.LookAt(position, target, up);
 
-			planeCenter = position + 1f * lookingDirection; //1f = distance
+			planeCenter = position + fov * lookingDirection; //1f = distance
 			scrnTL = planeCenter + upDirection - rightDirection;
 			scrnBR = planeCenter - upDirection + rightDirection;
 		}
@@ -135,8 +138,8 @@ namespace Template
         {
 			//lookingDirection = Vector3.Normalize(position - target);
 			rightDirection = Vector3.Normalize(Vector3.Cross(up, lookingDirection));
-			upDirection = Vector3.Cross(lookingDirection, rightDirection);
-			planeCenter = position + 1f * lookingDirection;
+			upDirection = Vector3.Normalize(Vector3.Cross(lookingDirection, rightDirection));
+			planeCenter = position + fov* lookingDirection;
 			scrnTL = planeCenter + upDirection - rightDirection;
 			scrnBR = planeCenter - upDirection + rightDirection;
 		}
@@ -258,7 +261,11 @@ namespace Template
 		public Scene scene;
 		public Camera cam;
 		public Surface surface;
-
+		public Vector3 p0;
+		public Vector3 p1;
+		public Vector3 p2;
+		public Vector3 u;
+		public Vector3 v;
 		public Raytracer(Scene scene, Camera cam, Surface surface)
 		{
 			this.scene = scene;
@@ -306,16 +313,25 @@ namespace Template
 		}
 		public void Render()
 		{
+			p0 = cam.planeCenter + cam.upDirection - cam.rightDirection;
+			p1 = cam.planeCenter + cam.upDirection + cam.rightDirection;
+			p2 = cam.planeCenter - cam.upDirection - cam.rightDirection;
+			u = p1 - p0;
+			v = p2 - p0;
+			float a;
+			float b;
+
 			for (int y = 0; y < surface.height; y++)
 			{
 				for (int x = surface.width - surface.width / 2; x < surface.width; x++) //2e helft van het scherm tot eind
 				{
-					Ray ray = new Ray(cam.position, cam.lookingDirection, 5000);
-						ray.direction = Vector3.Normalize(
-						new Vector3(cam.scrnTL.X - (cam.scrnTL.X - cam.scrnBR.X) * (((float)x - surface.width / 2) / (surface.width / 2)),
-						cam.scrnTL.Y - (cam.scrnTL.Y - cam.scrnBR.Y) * ((float)y / surface.height),
-						cam.scrnTL.Z)
-						); //find ray direction
+					a = (float)(x - surface.width / 2) / (float)(surface.width / 2); //[0:1]
+					b = (float)y / (float)surface.height; //[0:1]
+
+					Vector3 screenPoint = p0 + (a * u) + (b * v);
+					Ray ray = new Ray(cam.position, Vector3.Normalize(screenPoint - cam.position), 5000);
+
+
 					Intersection intersection1 = CheckCollisions(ray); //check if ray intersects with an object in the scene
 
 					if (intersection1.nearestPrim != null)

@@ -29,8 +29,11 @@ namespace Template
 		
 		Vector2 lastpos;
 		float sensitivity;
-		public float yaw;
-		public float pitch;
+		float speed = 1.5f;
+		Vector3 position = new Vector3(0.0f, 0.0f, 3.0f);
+		Vector3 front = new Vector3(0.0f, 0.0f, -1.0f);
+		Vector3 up = new Vector3(0.0f, 1.0f, 0.0f);
+		bool firstmove = true;
 		protected override void OnLoad( EventArgs e )
 		{
 			// called during application initialization
@@ -46,6 +49,9 @@ namespace Template
 			app.Init();
 			CursorVisible = false;
 			CursorGrabbed = true;
+			sensitivity = 0.01f;
+			
+			
 		}
 		protected override void OnUnload( EventArgs e )
 		{
@@ -74,50 +80,58 @@ namespace Template
 
 			if (keyboard.IsKeyDown(OpenTK.Input.Key.W)) //forward
 			{
-				app.raytracer.cam.position += app.raytracer.cam.lookingDirection * 0.01f;
-				app.raytracer.cam.Update();
+				app.raytracer.cam.position += front * 0.1f * (float)e.Time;
+				
 			}
 			if (keyboard.IsKeyDown(OpenTK.Input.Key.A)) //left
 			{
-				app.raytracer.cam.position += Vector3.Normalize(Vector3.Cross(app.raytracer.cam.lookingDirection, app.raytracer.cam.upDirection)) *0.01f;
-				app.raytracer.cam.Update();
+				app.raytracer.cam.position += Vector3.Normalize(Vector3.Cross(front, up)) * 0.1f * (float)e.Time;
+				
 			}
 
 			if (keyboard.IsKeyDown(OpenTK.Input.Key.S)) //backward
 			{
-				app.raytracer.cam.position -= app.raytracer.cam.lookingDirection * 0.01f;
-				app.raytracer.cam.Update();
+				app.raytracer.cam.position -= front * 0.1f * (float)e.Time;
+				
 			}
 			if (keyboard.IsKeyDown(OpenTK.Input.Key.D)) //right
             {
-				app.raytracer.cam.position -= Vector3.Normalize(Vector3.Cross(app.raytracer.cam.lookingDirection, app.raytracer.cam.upDirection)) *0.01f;
-				app.raytracer.cam.Update();
+				app.raytracer.cam.position -= Vector3.Normalize(Vector3.Cross(front, up)) * 0.1f * (float)e.Time;
+				
 			}
 			if (keyboard.IsKeyDown(OpenTK.Input.Key.Space)) //up
 			{
-				app.raytracer.cam.position += app.raytracer.cam.upDirection * 0.01f;
-				app.raytracer.cam.Update();
+				app.raytracer.cam.position += up * 0.1f * (float)e.Time;
+				
 			}
 			if (keyboard.IsKeyDown(OpenTK.Input.Key.ShiftLeft)) //down
 			{
-				app.raytracer.cam.position -= app.raytracer.cam.upDirection * 0.01f;
-				app.raytracer.cam.Update();
+				app.raytracer.cam.position -= up * 0.1f * (float)e.Time;
+
+			}
+			var mouse = OpenTK.Input.Mouse.GetState();
+
+			if (firstmove)
+			{
+				lastpos = new Vector2(mouse.X, mouse.Y);
+				firstmove = false;
+			}
+			else
+			{
+				float deltaX = mouse.X - lastpos.X;
+				float deltaY = mouse.Y - lastpos.Y;
+				lastpos = new Vector2(deltaX, deltaY);
+
+				app.raytracer.cam.yaw -= deltaX * sensitivity;
+				app.raytracer.cam.pitch -= deltaY * sensitivity;
 			}
 
-			/*
-			var mouse = OpenTK.Input.Mouse.GetState();
-			
-			float deltaX = mouse.X - lastpos.X;
-			float deltaY = mouse.Y - lastpos.Y;
-			lastpos = new Vector2(deltaX, deltaY);
-			yaw += deltaX * sensitivity;
-			pitch -= deltaY * sensitivity;
-
-			app.raytracer.cam.lookingDirection.X = (float)Math.Cos(MathHelper.DegreesToRadians(pitch)) * (float)Math.Cos(MathHelper.DegreesToRadians(yaw));
-			app.raytracer.cam.lookingDirection.Y = (float)Math.Sin(MathHelper.DegreesToRadians(pitch));
-			app.raytracer.cam.lookingDirection.Z = (float)Math.Cos(MathHelper.DegreesToRadians(pitch)) * (float)Math.Sin(MathHelper.DegreesToRadians(yaw));
+			app.raytracer.cam.lookingDirection.X = (float)Math.Cos(MathHelper.DegreesToRadians(app.raytracer.cam.pitch)) * (float)Math.Cos(MathHelper.DegreesToRadians(app.raytracer.cam.yaw));
+			app.raytracer.cam.lookingDirection.Y = (float)Math.Sin(MathHelper.DegreesToRadians(app.raytracer.cam.pitch));
+			app.raytracer.cam.lookingDirection.Z = (float)Math.Cos(MathHelper.DegreesToRadians(app.raytracer.cam.pitch)) * (float)Math.Sin(MathHelper.DegreesToRadians(app.raytracer.cam.yaw));
 			app.raytracer.cam.lookingDirection = Vector3.Normalize(app.raytracer.cam.lookingDirection);
-*/
+
+			app.raytracer.cam.Update();
 		}
 		protected override void OnRenderFrame( FrameEventArgs e )
 		{
