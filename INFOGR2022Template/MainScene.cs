@@ -36,9 +36,9 @@ namespace Template
 			scene = new Scene();
 			
 			primitives = new List<Primitive>();
-			sphere1 = new Sphere(new Vector3(0, 0, 2f), .1f, new Material(new Color4(0, 0, 255, .9f), true));
-			sphere2 = new Sphere(new Vector3(-1, 0, 1.5f), .1f, new Material(new Color4(255, 0, 0, .9f), true));
-			sphere3 = new Sphere(new Vector3(2, 0, 2f), .4f, new Material(new Color4(0, 0, 255, .9f), true));
+			sphere1 = new Sphere(new Vector3(0, 0, 2f), .2f, new Material(new Color4(0, 0, 255, .9f), true));
+			sphere2 = new Sphere(new Vector3(-1, 0, 1.5f), .2f, new Material(new Color4(255, 0, 0, .9f), true));
+			sphere3 = new Sphere(new Vector3(2, 0, 2f), .2f, new Material(new Color4(0, 0, 255, .9f), true));
 			plane1 = new Plane(new Vector3(0, 1, 0), -.2f, new Material(new Color4(255, 255, 255, .9f), true, true));
 			triangle1 = new Triangle(new Vector3(.2f, 0, 2f), new Vector3(.2f, .2f, 2f), new Vector3(0, 0, 2f), new Material(new Color4(255, 0, 255, .9f)));
 
@@ -154,8 +154,8 @@ namespace Template
 
 		public Color4 GetColor(float x, float z, Color4 color, float energy)
         {
-			float u = x * 2f;
-			float v = z * 2f;
+			float u = x * 6f;
+			float v = z * 6f;
 			int i = ((int)u + (int)v) & 1;
 			if (i == 0)
             {
@@ -350,10 +350,10 @@ namespace Template
 							Vector3 intersectionPoint = reflectionRay.origin + reflectionRay.direction * reflectionRay.length;
 							reflectionIntersection.color = reflectionIntersection.nearestPrim.GetColor(intersectionPoint.X, intersectionPoint.Z, reflectionIntersection.color, 1);
                         }
-						float alpha = 1 / reflectionRay.length;
-						intersection.color.R = intersection.color.R * .4f + reflectionIntersection.color.R * .6f; //find new colors
-						intersection.color.G = intersection.color.G * .4f + reflectionIntersection.color.G * .6f;
-						intersection.color.B = intersection.color.B * .4f + reflectionIntersection.color.B * .6f;
+						float alpha = Math.Min(1, 1 / (float)Math.Pow(reflectionRay.length, 2)) * 0.4f;
+						intersection.color.R = intersection.color.R * (1 - alpha) + reflectionIntersection.color.R * alpha; //find new colors
+						intersection.color.G = intersection.color.G * (1 - alpha) + reflectionIntersection.color.G * alpha;
+						intersection.color.B = intersection.color.B * (1 - alpha) + reflectionIntersection.color.B * alpha;
 					}
                 }
             }
@@ -377,7 +377,7 @@ namespace Template
 					b = (float)y / (float)surface.height; //[0:1]
 
 					Vector3 screenPoint = p0 + (a * u) + (b * v);
-					Ray ray = new Ray(cam.position, Vector3.Normalize(screenPoint - cam.position), 5000);
+					Ray ray = new Ray(cam.position, Vector3.Normalize(screenPoint - cam.position), MainScene.rayLength);
 
 
 					Intersection intersection1 = CheckCollisions(ray, 7); //check if ray intersects with an object in the scene
