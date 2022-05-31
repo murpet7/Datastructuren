@@ -18,6 +18,7 @@ namespace Template
 		Sphere sphere2;
 		Sphere sphere3;
 		Plane plane1;
+		Triangle triangle1;
 		public Camera camera;
 		public Ray ray;
 		public Raytracer raytracer;
@@ -38,12 +39,14 @@ namespace Template
 			sphere1 = new Sphere(new Vector3(0, 0, 2f), .1f, new Material(new Color4(0, 0, 255, .9f), true));
 			sphere2 = new Sphere(new Vector3(-1, 0, 1.5f), .1f, new Material(new Color4(255, 0, 0, .9f), true));
 			sphere3 = new Sphere(new Vector3(2, 0, 2f), .4f, new Material(new Color4(0, 0, 255, .9f), true));
-			plane1 = new Plane(new Vector3(0, 1, 0), -0.75f, new Material(new Color4(255, 0, 255, .9f), true, true));
+			plane1 = new Plane(new Vector3(0, 1, 0), -.1f, new Material(new Color4(255, 255, 255, .9f), true, true));
+			triangle1 = new Triangle(new Vector3(.2f, 0, 2f), new Vector3(.2f, .2f, 2f), new Vector3(0, 0, 2f), new Material(new Color4(255, 0, 255, .9f)));
 
 			scene.primitives.Add(sphere1);
 			scene.primitives.Add(sphere2);
 			scene.primitives.Add(sphere3);
 			scene.primitives.Add(plane1);
+			scene.primitives.Add(triangle1);
 
 			light1 = new Light(new Vector3(.2f, 1f, 2f), new Color4(255, 255, 255, 2f));
 			light2 = new Light(new Vector3(-.9f, -.5f, 2f), new Color4(255, 255, 255, 1f));
@@ -195,6 +198,21 @@ namespace Template
 		}
 	}
 
+	class Triangle : Primitive
+	{
+		public Vector3 p0;
+		public Vector3 p1;
+		public Vector3 p2;
+
+		public Triangle(Vector3 p0, Vector3 p1, Vector3 p2, Material color)
+		{
+			this.p0 = p0;
+			this.p1 = p1;
+			this.p2 = p2;
+			this.mat = color;
+		}
+	}
+
 	class Light
     {
 		public Vector3 position;
@@ -251,6 +269,31 @@ namespace Template
 			}
 		}
 
+		public void IntersectTriangle(Ray ray, Triangle triangle)
+		{
+			float hit;
+			Vector3 barycentricCoord;
+			Vector3 triangleNormal;
+			Vector3 e0 = triangle.p1 - triangle.p0;
+			Vector3 e1 = triangle.p0 - triangle.p2;
+			triangleNormal = Vector3.Cross(e1, e0);
+
+			Vector3 e2 = (1f / (float)Vector3.Dot(triangleNormal, ray.direction)) * (triangle.p0 - ray.origin);
+			Vector3 i = Vector3.Cross(ray.direction, e2);
+
+			barycentricCoord.Y = Vector3.Dot(i, e1);
+			barycentricCoord.Z = Vector3.Dot(i, e0);
+			barycentricCoord.X = 1f - (barycentricCoord.Z + barycentricCoord.Y);
+			hit = Vector3.Dot(triangleNormal, e2);
+
+			if ((hit > 0.0001f) && barycentricCoord.X > 0 && barycentricCoord.Y > 0 && barycentricCoord.Z > 0)
+			{
+				ray.length = hit;
+				nearestPrim = triangle;
+				normal = triangleNormal;
+			}
+		}
+
 		//normaallijn moet nog berekend worden bij een intersect
 		//Intersect werkt niet als de ray in de sphere begint
 		//Plane intersect moet nog worden gemaakt
@@ -273,7 +316,7 @@ namespace Template
 			this.surface = surface;
 		}
 
-		public Intersection CheckCollisions(Ray ray)
+		public Intersection CheckCollisions(Ray ray, int i)
 		{
 			Intersection intersection = new Intersection();
 			foreach (Primitive primitive in scene.primitives)
@@ -286,6 +329,10 @@ namespace Template
 				{
 					intersection.IntersectPlane((Plane)primitive, ray);
 				}
+				if (primitive.GetType() == typeof(Triangle))
+                {
+					intersection.IntersectTriangle(ray, (Triangle)primitive);
+				}
 			}
 			if (intersection.nearestPrim != null)
             {
@@ -294,8 +341,9 @@ namespace Template
                 {
 					Ray reflectionRay = new Ray(Vector3.Zero, Vector3.Zero, MainScene.rayLength); //if the material is reflective, create a new ray
 					reflectionRay.direction = ray.direction - 2 * Vector3.Dot(ray.direction , Vector3.Normalize(intersection.normal)) * Vector3.Normalize(intersection.normal);
-					Intersection reflectionIntersection = CheckCollisions(reflectionRay);
-					if (reflectionIntersection.nearestPrim != null)
+					reflectionRay.origin = ray.origin + ray.direction * ray.length;
+					Intersection reflectionIntersection = CheckCollisions(reflectionRay, i - 1);
+					if (reflectionIntersection.nearestPrim != null && i > 0)
                     {
                         if (reflectionIntersection.nearestPrim.mat.isCheckered)
                         {
@@ -303,9 +351,9 @@ namespace Template
 							reflectionIntersection.color = reflectionIntersection.nearestPrim.GetColor(intersectionPoint.X, intersectionPoint.Z, reflectionIntersection.color, 1);
                         }
 						float alpha = 1 / reflectionRay.length;
-						intersection.color.R = intersection.color.R * (1 - alpha) + reflectionIntersection.color.R * alpha;
-						intersection.color.G = intersection.color.G * (1 - alpha) + reflectionIntersection.color.G * alpha;
-						intersection.color.B = intersection.color.B * (1 - alpha) + reflectionIntersection.color.B * alpha;
+						intersection.color.R = intersection.color.R * .4f + reflectionIntersection.color.R * .6f; //find new colors
+						intersection.color.G = intersection.color.G * .4f + reflectionIntersection.color.G * .6f;
+						intersection.color.B = intersection.color.B * .4f + reflectionIntersection.color.B * .6f;
 					}
                 }
             }
@@ -332,7 +380,7 @@ namespace Template
 					Ray ray = new Ray(cam.position, Vector3.Normalize(screenPoint - cam.position), 5000);
 
 
-					Intersection intersection1 = CheckCollisions(ray); //check if ray intersects with an object in the scene
+					Intersection intersection1 = CheckCollisions(ray, 7); //check if ray intersects with an object in the scene
 
 					if (intersection1.nearestPrim != null)
 					{
@@ -346,10 +394,10 @@ namespace Template
 							Vector3 direction = Vector3.Normalize(new Vector3(light.position - intersectionPoint));
 							float length = new Vector3(light.position - intersectionPoint).Length;
 							Ray reflectionRay = new Ray(intersectionPoint, direction, length);
-							Intersection intersection2 = CheckCollisions(reflectionRay);
+							Intersection intersection2 = CheckCollisions(reflectionRay, 1);
 							if(intersection2.nearestPrim == null)
                             {
-								reflectedEnergy += Math.Max(0, 1 / (float)Math.Pow(length, 2) * light.intensity.A * Vector3.Dot(Vector3.Normalize(intersection1.normal), direction));
+								reflectedEnergy += Math.Max(0, 1 / (float)Math.Pow(length, 2) * light.intensity.A * Vector3.Dot(Vector3.Normalize(intersection1.normal), direction)); //find amount of energy reflected
 								red = Math.Min(light.intensity.R + red, intersection1.color.R);
 								green = Math.Min(light.intensity.G + green, intersection1.color.G);
 								blue = Math.Min(light.intensity.B + blue, intersection1.color.B);
