@@ -10,6 +10,7 @@ namespace Template
 	public class Mesh
 	{
 		// data members
+		public Matrix4 modelMatrix;
 		public ObjVertex[] vertices;            // vertex positions, model space
 		public ObjTriangle[] triangles;         // triangles (3 vertex indices)
 		public ObjQuad[] quads;                 // quads (4 vertex indices)

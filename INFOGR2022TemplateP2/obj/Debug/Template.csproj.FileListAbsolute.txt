@@ -1,0 +1,11 @@
+D:\Datastructuren\INFOGR2022TemplateP2\bin\Debug\INFOGR2019Tmpl8.exe.config
+D:\Datastructuren\INFOGR2022TemplateP2\bin\Debug\INFOGR2019Tmpl8.exe
+D:\Datastructuren\INFOGR2022TemplateP2\bin\Debug\INFOGR2019Tmpl8.pdb
+D:\Datastructuren\INFOGR2022TemplateP2\bin\Debug\OpenTK.dll
+D:\Datastructuren\INFOGR2022TemplateP2\bin\Debug\OpenTK.pdb
+D:\Datastructuren\INFOGR2022TemplateP2\bin\Debug\OpenTK.xml
+D:\Datastructuren\INFOGR2022TemplateP2\obj\Debug\Template.csproj.AssemblyReference.cache
+D:\Datastructuren\INFOGR2022TemplateP2\obj\Debug\Template.csproj.CoreCompileInputs.cache
+D:\Datastructuren\INFOGR2022TemplateP2\obj\Debug\Template.csproj.CopyComplete
+D:\Datastructuren\INFOGR2022TemplateP2\obj\Debug\INFOGR2019Tmpl8.exe
+D:\Datastructuren\INFOGR2022TemplateP2\obj\Debug\INFOGR2019Tmpl8.pdb
