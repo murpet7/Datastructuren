@@ -18,6 +18,7 @@ namespace Template
 		ScreenQuad quad;                        // screen filling quad for post processing
 		bool useRenderTarget = true;
 
+
 		// initialize
 		public void Init()
 		{
@@ -36,7 +37,8 @@ namespace Template
 			// create the render target
 			target = new RenderTarget( screen.width, screen.height );
 			quad = new ScreenQuad();
-		}
+
+	}
 
 		// tick for background surface
 		public void Tick()
@@ -54,14 +56,18 @@ namespace Template
 			timer.Start();
 
 			// prepare matrix for vertex shader
-			float angle90degrees = PI / 2;
+			float angle90degrees = PI / 4;
+
 			Matrix4 Tpot = Matrix4.CreateScale( 0.5f ) * Matrix4.CreateFromAxisAngle( new Vector3( 0, 1, 0 ), a );
 			Matrix4 Tfloor = Matrix4.CreateScale( 4.0f ) * Matrix4.CreateFromAxisAngle( new Vector3( 0, 1, 0 ), a );
-			Matrix4 Tcamera = Matrix4.CreateTranslation( new Vector3( 0, -14.5f, 0 ) ) * Matrix4.CreateFromAxisAngle( new Vector3( 1, 0, 0 ), angle90degrees );
+
+			
+			Matrix4 Tcamera = Camera.view;
+			//Matrix4 Tcamera = Matrix4.CreateTranslation( new Vector3(0, -10.5f, -10f ) ) * Matrix4.CreateFromAxisAngle( new Vector3( 1, 0, 0 ), angle90degrees );
 			Matrix4 Tview = Matrix4.CreatePerspectiveFieldOfView( 1.2f, 1.3f, .1f, 1000 );
 
 			// update rotation
-			a += 0.001f * frameDuration;
+			//a += 0.001f * frameDuration;
 			if( a > 2 * PI ) a -= 2 * PI;
 
 			if( useRenderTarget )
@@ -84,5 +90,18 @@ namespace Template
 				floor.Render( shader, Tfloor * Tcamera * Tview, wood );
 			}
 		}
+	}
+
+	public static class Camera
+	{
+		//Camera position and sky position
+		public static Vector3 position = new Vector3(0, 0, 9f);
+		public static Vector3 target = Vector3.Zero;
+		public static Vector3 up = Vector3.UnitY;
+		public static Vector3 front = new Vector3(0f, 0f, -1f);
+		public static Vector3 lookingDirection = Vector3.Normalize(position - target);
+
+		public static Matrix4 view = Matrix4.LookAt(position, lookingDirection, up);
+
 	}
 }

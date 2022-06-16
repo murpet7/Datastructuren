@@ -28,6 +28,8 @@ namespace Template
 		static int screenID;            // unique integer identifier of the OpenGL texture
 		static MyApplication app;       // instance of the application
 		static bool terminated = false; // application terminates gracefully when this is true
+
+		float speed = 3f; //Walking speed
 		protected override void OnLoad( EventArgs e )
 		{
 			// called during application initialization
@@ -61,6 +63,43 @@ namespace Template
 			// called once per frame; app logic
 			var keyboard = OpenTK.Input.Keyboard.GetState();
 			if( keyboard[OpenTK.Input.Key.Escape] ) terminated = true;
+
+			if (!Focused) //When screen is focussed exit this code
+			{
+				return;
+			}
+
+			if (keyboard.IsKeyDown(OpenTK.Input.Key.W)) //forward movement
+			{
+				Camera.position += Camera.front * speed * (float)e.Time;
+				Camera.view = Matrix4.LookAt(Camera.position, Camera.position + Camera.front, Camera.up);
+			}
+			if (keyboard.IsKeyDown(OpenTK.Input.Key.S)) //backward movement
+			{
+				Camera.position -= Camera.front * speed * (float)e.Time;
+				Camera.view = Matrix4.LookAt(Camera.position, Camera.position + Camera.front, Camera.up);
+			}
+			if (keyboard.IsKeyDown(OpenTK.Input.Key.A)) //left movement
+			{
+				Camera.position -= Vector3.Cross(Camera.front, Camera.up) * speed * (float)e.Time;
+				Camera.view = Matrix4.LookAt(Camera.position, Camera.position + Camera.front, Camera.up);
+			}
+			if (keyboard.IsKeyDown(OpenTK.Input.Key.D)) //right movement
+			{
+				Camera.position += Vector3.Cross(Camera.front, Camera.up) * speed * (float)e.Time;
+				Camera.view = Matrix4.LookAt(Camera.position, Camera.position + Camera.front, Camera.up);
+			}
+			if (keyboard.IsKeyDown(OpenTK.Input.Key.Space)) //up movement
+			{
+				Camera.position += Camera.up * speed * (float)e.Time;
+				Camera.view = Matrix4.LookAt(Camera.position, Camera.position + Camera.front, Camera.up);
+			}
+			if (keyboard.IsKeyDown(OpenTK.Input.Key.ShiftLeft)) //down movement
+			{
+				Camera.position -= Camera.up * speed * (float)e.Time;
+				Camera.view = Matrix4.LookAt(Camera.position, Camera.position + Camera.front, Camera.up);
+			}
+
 		}
 		protected override void OnRenderFrame( FrameEventArgs e )
 		{
