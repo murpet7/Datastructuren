@@ -7,7 +7,7 @@ namespace Template
 	{
 		// member variables
 		public Surface screen;                  // background surface for printing etc.
-		Mesh mesh, floor;                       // a mesh to draw using OpenGL
+		Entity scene, teapot, floor;
 		const float PI = 3.1415926535f;         // PI
 		float a = 0;                            // teapot rotation angle
 		Stopwatch timer;                        // timer for measuring frame duration
@@ -23,8 +23,9 @@ namespace Template
 		public void Init()
 		{
 			// load teapot
-			mesh = new Mesh( "../../assets/teapot.obj" );
-			floor = new Mesh( "../../assets/floor.obj" );
+			teapot = new Entity( new Mesh("../../assets/teapot.obj"), scene);
+			floor = new Entity( new Mesh("../../assets/floor.obj"), scene );
+			scene = new Entity(null);
 			// initialize stopwatch
 			timer = new Stopwatch();
 			timer.Reset();
@@ -56,8 +57,8 @@ namespace Template
 			timer.Start();
 
 			// prepare matrix for vertex shader
+			SceneGraph.Render(scene, screen);
 			float angle90degrees = PI / 4;
-
 			Matrix4 Tpot = Matrix4.CreateScale( 0.5f ) * Matrix4.CreateFromAxisAngle( new Vector3( 0, 1, 0 ), a );
 			Matrix4 Tfloor = Matrix4.CreateScale( 4.0f ) * Matrix4.CreateFromAxisAngle( new Vector3( 0, 1, 0 ), a );
 
