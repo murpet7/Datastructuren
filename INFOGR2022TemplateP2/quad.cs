@@ -46,6 +46,9 @@ namespace Template
 			// enable shader
 			GL.UseProgram( shader.programID );
 
+			int uniform_lightColor = GL.GetUniformLocation(shader.programID, "lightColor");
+			GL.Uniform3(uniform_lightColor, shader.light.color); // niet op de goeie plek??
+
 			// enable position and uv attributes
 			GL.EnableVertexAttribArray( shader.attribute_vpos );
 			GL.EnableVertexAttribArray( shader.attribute_vuvs );

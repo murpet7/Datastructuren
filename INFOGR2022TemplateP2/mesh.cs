@@ -65,6 +65,9 @@ namespace Template
 			// enable shader
 			GL.UseProgram( shader.programID );
 
+			int uniform_lightColor = GL.GetUniformLocation(shader.programID, "lightColor");
+			GL.Uniform3(uniform_lightColor, shader.light.color); // niet op de goeie plek??
+
 			// pass transform to vertex shader
 			GL.UniformMatrix4( shader.uniform_mview, false, ref transform );
 

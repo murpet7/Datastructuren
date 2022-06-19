@@ -12,11 +12,14 @@ namespace Template
 		public int attribute_vnrm;
 		public int attribute_vuvs;
 		public int uniform_mview;
+		public int uniform_lightColor;
+		public Light light;
 
 		// constructor
-		public Shader( String vertexShader, String fragmentShader )
+		public Shader( String vertexShader, String fragmentShader, Light light)
 		{
 			// compile shaders
+			this.light = light;
 			programID = GL.CreateProgram();
 			Load( vertexShader, ShaderType.VertexShader, programID, out vsID );
 			Load( fragmentShader, ShaderType.FragmentShader, programID, out fsID );
@@ -28,6 +31,7 @@ namespace Template
 			attribute_vnrm = GL.GetAttribLocation( programID, "vNormal" );
 			attribute_vuvs = GL.GetAttribLocation( programID, "vUV" );
 			uniform_mview = GL.GetUniformLocation( programID, "transform" );
+
 		}
 
 		// loading shaders
