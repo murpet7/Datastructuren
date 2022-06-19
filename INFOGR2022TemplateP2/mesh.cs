@@ -9,7 +9,8 @@ namespace Template
 
 	public class Mesh
 	{
-		public Shader shader;
+		public Texture texture;
+
 		//Local space information
 		public Vector3 pos;
 		public Vector3 rot; //in graden over x/y/z-as
@@ -31,15 +32,15 @@ namespace Template
 		int quadBufferId;                       // quad buffer
 
 		// constructor
-		public Mesh( string fileName, Shader shader, Vector3 pos, Vector3 rot, Vector3 scale )
+		public Mesh( string fileName, Vector3 pos, Vector3 rot, Vector3 scale, Texture texture)
 		{
 			MeshLoader loader = new MeshLoader();
 			loader.Load( this, fileName );
 
-			this.shader = shader;
 			this.pos = pos;
 			this.rot = rot;
 			this.scale = scale;
+			this.texture = texture;
 		}
 
 		// initialization; called during first render
