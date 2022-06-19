@@ -12,7 +12,7 @@ namespace Template
 		public int attribute_vnrm;
 		public int attribute_vuvs;
 		public int uniform_mview;
-		public int uniform_lightColor;
+		public int uniform_model;
 		public Light light;
 
 		// constructor
@@ -31,6 +31,7 @@ namespace Template
 			attribute_vnrm = GL.GetAttribLocation( programID, "vNormal" );
 			attribute_vuvs = GL.GetAttribLocation( programID, "vUV" );
 			uniform_mview = GL.GetUniformLocation( programID, "transform" );
+			uniform_model = GL.GetUniformLocation(programID, "model");
 
 		}
 

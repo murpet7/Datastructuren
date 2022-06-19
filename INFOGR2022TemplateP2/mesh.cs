@@ -83,11 +83,17 @@ namespace Template
 			// enable shader
 			GL.UseProgram( shader.programID );
 
+			//DIT HEB IK TOEGEVOEGD
 			int uniform_lightColor = GL.GetUniformLocation(shader.programID, "lightColor");
-			GL.Uniform3(uniform_lightColor, shader.light.color); // niet op de goeie plek??
+			GL.Uniform3(uniform_lightColor, shader.light.color);
+			int uniform_lightPos = GL.GetUniformLocation(shader.programID, "lightPos");
+			GL.Uniform3(uniform_lightPos, shader.light.position);
 
 			// pass transform to vertex shader
 			GL.UniformMatrix4( shader.uniform_mview, false, ref transform );
+
+			//DIT HEB IK TOEGEVOEGD
+			GL.UniformMatrix4( shader.uniform_model, false, ref modelMatrix);
 
 			// enable position, normal and uv attributes
 			GL.EnableVertexAttribArray( shader.attribute_vpos );

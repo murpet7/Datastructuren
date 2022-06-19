@@ -27,7 +27,7 @@ namespace Template
 			timer.Reset();
 			timer.Start();
 			// create light
-			light = new Light(new Vector3(1.0f,1.0f,1.0f));
+			light = new Light(new Vector3(1.0f,1.0f,1.0f), new Vector3(20.0f, 5.0f, 0.0f));
 			// create shaders
 			shader = new Shader("../../shaders/vs.glsl", "../../shaders/fs.glsl", light);
 			postproc = new Shader("../../shaders/vs_post.glsl", "../../shaders/fs_post.glsl", light);
@@ -39,7 +39,7 @@ namespace Template
 
 			scene = new Entity(null);
 			teapot = new Entity(new Mesh("../../assets/teapot.obj", Vector3.Zero, Vector3.Zero, new Vector3(1, 1, 1), wood), scene);
-			floor = new Entity(new Mesh("../../assets/floor.obj", new Vector3(0, 1, 0), Vector3.Zero, new Vector3(4, 1, 0.5f), wood), teapot);
+			floor = new Entity(new Mesh("../../assets/floor.obj", new Vector3(0, 1, 0), Vector3.Zero, new Vector3(1, 1, 1), wood), scene);
 		}
 
 		// tick for background surface
@@ -97,9 +97,11 @@ namespace Template
 		public static Vector3 target = Vector3.Zero;
 		public static Vector3 up = Vector3.UnitY;
 		public static Vector3 front = new Vector3(0f, 0f, -1f);
-		public static Vector3 lookingDirection = Vector3.Normalize(position - target);
+		//public static Vector3 lookingDirection = Vector3.Normalize(position - target);
+		public static float pitch;
+		public static float yaw = -90;
 
-		public static Matrix4 view = Matrix4.LookAt(position, lookingDirection, up);
+		public static Matrix4 view = Matrix4.LookAt(position, front, up);
 
 	}
 
@@ -109,9 +111,10 @@ namespace Template
 		public Vector3 color;
 		public float ambientstrength;
 
-		public Light(Vector3 color)
+		public Light(Vector3 color, Vector3 position)
         {
 			this.color = color;
+			this.position = position;
         }
     }
 }

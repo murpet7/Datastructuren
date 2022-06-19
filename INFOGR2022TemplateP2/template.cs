@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Threading;
 using OpenTK;
 using OpenTK.Graphics.OpenGL;
+using OpenTK.Input;
 
 // The template provides you with a window which displays a 'linear frame buffer', i.e.
 // a 1D array of pixels that represents the graphical contents of the window.
@@ -30,6 +31,9 @@ namespace Template
 		static bool terminated = false; // application terminates gracefully when this is true
 
 		float speed = 3f; //Walking speed
+		bool firstmove = true;
+		Vector2 lastpos;
+		float sensitivity = 0.05f; //Mouse sensitivity
 		protected override void OnLoad( EventArgs e )
 		{
 			// called during application initialization
@@ -43,6 +47,9 @@ namespace Template
 			Sprite.target = app.screen;
 			screenID = app.screen.GenTexture();
 			app.Init();
+
+			CursorVisible = false;
+			CursorGrabbed = true;
 		}
 		protected override void OnUnload( EventArgs e )
 		{
@@ -58,11 +65,11 @@ namespace Template
 			GL.LoadIdentity();
 			GL.Ortho( -1.0, 1.0, -1.0, 1.0, 0.0, 4.0 );
 		}
-		protected override void OnUpdateFrame( FrameEventArgs e )
+		protected override void OnUpdateFrame(FrameEventArgs e)
 		{
 			// called once per frame; app logic
 			var keyboard = OpenTK.Input.Keyboard.GetState();
-			if( keyboard[OpenTK.Input.Key.Escape] ) terminated = true;
+			if (keyboard[OpenTK.Input.Key.Escape]) terminated = true;
 
 			if (!Focused) //When screen is focussed exit this code
 			{
@@ -100,6 +107,44 @@ namespace Template
 				Camera.view = Matrix4.LookAt(Camera.position, Camera.position + Camera.front, Camera.up);
 			}
 
+			//CAMERA MOUSE MOVEMENT
+			var mouse = Mouse.GetState();
+
+			float deltaX, deltaY;
+
+			if (firstmove) //Save current mouse position as last position if this was the first move
+			{
+				lastpos = new Vector2(mouse.X, mouse.Y);
+				firstmove = false;
+			}
+			else //Find difference between current mouse position and last mouse position
+			{
+				deltaX = mouse.X - lastpos.X;
+				deltaY = mouse.Y - lastpos.Y;
+				lastpos = new Vector2(mouse.X, mouse.Y);
+
+				Camera.yaw += deltaX * sensitivity; //yaw = look left/look right
+
+				if (Camera.pitch > 89.0f)
+				{
+					Camera.pitch = 89.0f;
+				}
+				else if (Camera.pitch < -89.0f)
+				{
+					Camera.pitch = -89.0f;
+				}
+				else
+				{
+					Camera.pitch -= deltaY * sensitivity; //pitch = look up/look down
+				}
+
+				//Change lookingdirection according to new pitch and yaw values
+				Camera.front.X = (float)Math.Cos(MathHelper.DegreesToRadians(Camera.pitch)) * (float)Math.Cos(MathHelper.DegreesToRadians(Camera.yaw));
+				Camera.front.Y = (float)Math.Sin(MathHelper.DegreesToRadians(Camera.pitch));
+				Camera.front.Z = (float)Math.Cos(MathHelper.DegreesToRadians(Camera.pitch)) * (float)Math.Sin(MathHelper.DegreesToRadians(Camera.yaw));
+				Camera.front = Vector3.Normalize(Camera.front);
+				Camera.view = Matrix4.LookAt(Camera.position, Camera.position + Camera.front, Camera.up);
+			}
 		}
 		protected override void OnRenderFrame( FrameEventArgs e )
 		{
