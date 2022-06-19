@@ -7,25 +7,21 @@ namespace Template
 	{
 		// member variables
 		public Surface screen;                  // background surface for printing etc.
-		Mesh mesh, floor;                       // a mesh to draw using OpenGL
+		Entity scene, teapot, floor;
 		const float PI = 3.1415926535f;         // PI
 		float a = 0;                            // teapot rotation angle
 		Stopwatch timer;                        // timer for measuring frame duration
-		Shader shader;                          // shader to use for rendering
-		Shader postproc;                        // shader to use for post processing
-		Texture wood;                           // texture to use for rendering
-		RenderTarget target;                    // intermediate render target
-		ScreenQuad quad;                        // screen filling quad for post processing
+		public Shader shader;                          // shader to use for rendering
+		public Shader postproc;                        // shader to use for post processing
+		public Texture wood;                           // texture to use for rendering
+		public RenderTarget target;                    // intermediate render target
+		public ScreenQuad quad;                        // screen filling quad for post processing
 		Light light;
-		bool useRenderTarget = true;
-
+		public bool useRenderTarget = true;
 
 		// initialize
 		public void Init()
 		{
-			// load teapot
-			mesh = new Mesh("../../assets/teapot.obj");
-			floor = new Mesh("../../assets/floor.obj");
 			// initialize stopwatch
 			timer = new Stopwatch();
 			timer.Reset();
@@ -41,6 +37,9 @@ namespace Template
 			target = new RenderTarget(screen.width, screen.height);
 			quad = new ScreenQuad();
 
+			scene = new Entity(null);
+			teapot = new Entity(new Mesh("../../assets/teapot.obj", Vector3.Zero, Vector3.Zero, new Vector3(1, 1, 1), wood), scene);
+			floor = new Entity(new Mesh("../../assets/floor.obj", new Vector3(0, 1, 0), Vector3.Zero, new Vector3(4, 1, 0.5f), wood), teapot);
 		}
 
 		// tick for background surface
@@ -58,40 +57,36 @@ namespace Template
 			timer.Reset();
 			timer.Start();
 
-			// prepare matrix for vertex shader
-			float angle90degrees = PI / 4;
+			teapot.mesh.rot = new Vector3(0, a, 0);
 
-			Matrix4 Tpot = Matrix4.CreateScale(0.5f) * Matrix4.CreateFromAxisAngle(new Vector3(0, 1, 0), a);
-			Matrix4 Tfloor = Matrix4.CreateScale(4.0f) * Matrix4.CreateFromAxisAngle(new Vector3(0, 1, 0), a);
-
-
-			Matrix4 Tcamera = Camera.view;
-			//Matrix4 Tcamera = Matrix4.CreateTranslation( new Vector3(0, -10.5f, -10f ) ) * Matrix4.CreateFromAxisAngle( new Vector3( 1, 0, 0 ), angle90degrees );
-			Matrix4 Tview = Matrix4.CreatePerspectiveFieldOfView(1.2f, 1.3f, .1f, 1000);
-
-			// update rotation
-			//a += 0.001f * frameDuration;
-			if (a > 2 * PI) a -= 2 * PI;
-
+			a += 0.001f * frameDuration;
+			
 			if (useRenderTarget)
-			{
+            {
 				// enable render target
 				target.Bind();
+			}
 
-				// render scene to render target
-				mesh.Render(shader, Tpot * Tcamera * Tview, wood);
-				floor.Render(shader, Tfloor * Tcamera * Tview, wood);
+			SceneGraph.Render(scene, this);
 
+			if (useRenderTarget)
+            {
 				// render quad
 				target.Unbind();
 				quad.Render(postproc, target.GetTextureID());
 			}
-			else
-			{
-				// render scene directly to the screen
-				mesh.Render(shader, Tpot * Tcamera * Tview, wood);
-				floor.Render(shader, Tfloor * Tcamera * Tview, wood);
-			}
+
+			//Matrix4 Tpot = Matrix4.CreateScale( 0.5f ) * Matrix4.CreateFromAxisAngle( new Vector3( 0, 1, 0 ), a );
+			//Matrix4 Tfloor = Matrix4.CreateScale( 4.0f ) * Matrix4.CreateFromAxisAngle( new Vector3( 0, 1, 0 ), a );
+
+			
+			
+			//Matrix4 Tcamera = Matrix4.CreateTranslation( new Vector3(0, -10.5f, -10f ) ) * Matrix4.CreateFromAxisAngle( new Vector3( 1, 0, 0 ), angle90degrees );
+			
+
+			// update rotation
+			//a += 0.001f * frameDuration;
+			if( a > 2 * PI ) a -= 2 * PI;
 		}
 	}
 

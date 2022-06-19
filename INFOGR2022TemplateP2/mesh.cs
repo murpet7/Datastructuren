@@ -9,8 +9,21 @@ namespace Template
 
 	public class Mesh
 	{
-		// data members
+		public Texture texture;
+
+		//Local space information
+		public Vector3 pos;
+		public Vector3 rot; //in graden over x/y/z-as
+		public Vector3 scale;
+
+		//Global space information
+		public Vector3 globPos;
+		public Vector3 globRot;
+		public Vector3 globScale;
+
 		public Matrix4 modelMatrix;
+
+		// data members
 		public ObjVertex[] vertices;            // vertex positions, model space
 		public ObjTriangle[] triangles;         // triangles (3 vertex indices)
 		public ObjQuad[] quads;                 // quads (4 vertex indices)
@@ -19,10 +32,15 @@ namespace Template
 		int quadBufferId;                       // quad buffer
 
 		// constructor
-		public Mesh( string fileName )
+		public Mesh( string fileName, Vector3 pos, Vector3 rot, Vector3 scale, Texture texture)
 		{
 			MeshLoader loader = new MeshLoader();
 			loader.Load( this, fileName );
+
+			this.pos = pos;
+			this.rot = rot;
+			this.scale = scale;
+			this.texture = texture;
 		}
 
 		// initialization; called during first render
