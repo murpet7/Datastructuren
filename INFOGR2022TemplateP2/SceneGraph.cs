@@ -57,7 +57,6 @@ namespace Template
             this.mesh = mesh;
             this.parent = parent;
             if (parent != null) parent.children.Add(this);
-
         }
     }
 }
