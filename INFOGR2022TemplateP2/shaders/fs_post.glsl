@@ -24,16 +24,15 @@ void main()
 	abberationColor.z = texture(pixels, vec2(uv.x-abberationintensity, uv.y)).z;
 	abberationColor *= 1 - abberationintensity;
 
-
 	//RESULT
 	//--retrieve input pixel
 	outputColor = texture( pixels, uv ).rgb;
 
 	//--Abberation
-	outputColor = abberationColor;
+	//outputColor = abberationColor;
 
 	//--Vignetting
-	outputColor *= vignet;
+	//outputColor *= vignet;
 }
 
 // EOF

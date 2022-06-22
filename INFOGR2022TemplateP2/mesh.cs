@@ -15,6 +15,7 @@ namespace Template
 		public Vector3 pos;
 		public Vector3 rot; //in graden over x/y/z-as
 		public Vector3 scale;
+		public Matrix4 scale4;
 
 		//Global space information
 		public Vector3 globPos;
@@ -96,7 +97,9 @@ namespace Template
 			GL.UniformMatrix4( shader.uniform_mview, false, ref transform );
 
 			//DIT HEB IK TOEGEVOEGD
-			GL.UniformMatrix4( shader.uniform_model, false, ref modelMatrix);
+			//scale4 = Matrix4.CreateScale(scale);
+			//modelMatrix *= scale4;
+			GL.UniformMatrix4(shader.uniform_model, false, ref modelMatrix);
 
 			// enable position, normal and uv attributes
 			GL.EnableVertexAttribArray( shader.attribute_vpos );

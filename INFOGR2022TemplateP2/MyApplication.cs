@@ -13,7 +13,7 @@ namespace Template
 		Stopwatch timer;                        // timer for measuring frame duration
 		public Shader shader;                          // shader to use for rendering
 		public Shader postproc;                        // shader to use for post processing
-		public Texture wood, metal;                           // texture to use for rendering
+		public Texture wood, metal, checker;           // texture to use for rendering
 		public RenderTarget target;                    // intermediate render target
 		public ScreenQuad quad;                        // screen filling quad for post processing
 		Light light;
@@ -34,13 +34,15 @@ namespace Template
 			// load a texture
 			wood = new Texture("../../assets/wood.jpg");
 			metal = new Texture("../../assets/metal1.jpg");
+			checker = new Texture("../../assets/checker.jpg");
 			// create the render target
 			target = new RenderTarget(screen.width, screen.height);
 			quad = new ScreenQuad();
 
 			scene = new Entity(null);
-			teapot = new Entity(new Mesh("../../assets/teapot.obj", Vector3.Zero, Vector3.Zero, new Vector3(1, 1, 1), metal), scene);
-			floor = new Entity(new Mesh("../../assets/floor.obj", new Vector3(0, 1, 0), Vector3.Zero, new Vector3(1, 1, 1), wood), scene);
+			//teapot = new Entity(new Mesh("../../assets/cat.obj", Vector3.Zero, Vector3.Zero, new Vector3(1f, 1f, 1f), wood), scene);
+			teapot = new Entity(new Mesh("../../assets/teapot.obj", Vector3.Zero, Vector3.Zero, new Vector3(1f, 1f, 1f), checker), scene);
+			floor = new Entity(new Mesh("../../assets/floor.obj", new Vector3(0, 1, 0), Vector3.Zero, new Vector3(1, 1, 1), checker), scene);
 		}
 
 		// tick for background surface
