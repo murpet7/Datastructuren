@@ -1,7 +1,7 @@
 Student names / IDs: Yannick den Boer (6803113), Brian van den Berg (8487685)
 
 We have implemented all basic requirements for this assignment. 
-The bonus assignment included in the project is the addition of vignetting andchromatic aberration.
+The bonus assignment included in the project is the addition of vignetting and chromatic aberration.
 
 The camera can move in all required ways, using W, A, S, D, space, shift and the mouse.
 
