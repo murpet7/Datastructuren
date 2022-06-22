@@ -31,8 +31,8 @@ namespace Template
 		static bool terminated = false; // application terminates gracefully when this is true
 
 		float speed = 3f; //Walking speed
-		bool firstmove = true;
-		Vector2 lastpos;
+		bool firstmove = true; //Checks if mouse has moved
+		Vector2 lastpos; 
 		float sensitivity = 0.05f; //Mouse sensitivity
 		protected override void OnLoad( EventArgs e )
 		{

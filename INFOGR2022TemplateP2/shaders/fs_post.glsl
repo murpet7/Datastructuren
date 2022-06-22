@@ -12,7 +12,7 @@ void main()
 {
 	//VIGNETTING
 	float lightintensity = 30;
-	float vignettescatter = 0.25;
+	float vignettescatter = 0.5;
 	vec2 uv1 = uv*( 1 - uv);
 	float vignet = pow(uv1.x*uv1.y*lightintensity, vignettescatter);
 
@@ -28,11 +28,11 @@ void main()
 	//--retrieve input pixel
 	outputColor = texture( pixels, uv ).rgb;
 
-	//--Abberation
-	//outputColor = abberationColor;
+	//--Abberation (disable by commenting)
+	outputColor = abberationColor;
 
-	//--Vignetting
-	//outputColor *= vignet;
+	//--Vignetting (disable by commenting)
+	outputColor *= vignet;
 }
 
 // EOF

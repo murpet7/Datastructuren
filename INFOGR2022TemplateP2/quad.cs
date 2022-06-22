@@ -46,8 +46,9 @@ namespace Template
 			// enable shader
 			GL.UseProgram( shader.programID );
 
+			//pass lightColor to fragment shader
 			int uniform_lightColor = GL.GetUniformLocation(shader.programID, "lightColor");
-			GL.Uniform3(uniform_lightColor, shader.light.color); // niet op de goeie plek??
+			GL.Uniform3(uniform_lightColor, shader.light.color);
 
 			// enable position and uv attributes
 			GL.EnableVertexAttribArray( shader.attribute_vpos );

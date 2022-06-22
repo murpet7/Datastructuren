@@ -13,7 +13,7 @@ namespace Template
 		Stopwatch timer;                        // timer for measuring frame duration
 		public Shader shader;                          // shader to use for rendering
 		public Shader postproc;                        // shader to use for post processing
-		public Texture wood, metal, checker;           // texture to use for rendering
+		public Texture wood, metal, checker, stone;    // texture to use for rendering
 		public RenderTarget target;                    // intermediate render target
 		public ScreenQuad quad;                        // screen filling quad for post processing
 		Light light;
@@ -35,15 +35,17 @@ namespace Template
 			wood = new Texture("../../assets/wood.jpg");
 			metal = new Texture("../../assets/metal1.jpg");
 			checker = new Texture("../../assets/checker.jpg");
+			stone = new Texture("../../assets/stone.jpg");
 			// create the render target
 			target = new RenderTarget(screen.width, screen.height);
 			quad = new ScreenQuad();
 
+			// create entities
 			scene = new Entity(null);
-			teapot1 = new Entity(new Mesh("../../assets/teapot.obj", Vector3.Zero, Vector3.Zero, new Vector3(1, 1, 1), metal), scene);
-			teapot2 = new Entity(new Mesh("../../assets/teapot.obj", new Vector3(15, 0, 0), Vector3.Zero, new Vector3(1, 1, 1), metal), teapot1);
-			teapot3 = new Entity(new Mesh("../../assets/teapot.obj", new Vector3(30, 0, 0), Vector3.Zero, new Vector3(1, 1, 2), metal), teapot2);
-			floor = new Entity(new Mesh("../../assets/floor.obj", new Vector3(0, 1, 0), Vector3.Zero, new Vector3(5), wood), scene);
+			teapot1 = new Entity(new Mesh("../../assets/teapot.obj", Vector3.Zero, Vector3.Zero, new Vector3(1, 1, 1), wood), scene);
+			teapot2 = new Entity(new Mesh("../../assets/teacup.obj", new Vector3(15, 0, 0), Vector3.Zero, new Vector3(1, 1, 1), metal), teapot1);
+			teapot3 = new Entity(new Mesh("../../assets/eyeball.obj", new Vector3(30, 0, 0), Vector3.Zero, new Vector3(1, 1, 1), stone), teapot2);
+			floor = new Entity(new Mesh("../../assets/floor.obj", new Vector3(0, 1, 0), Vector3.Zero, new Vector3(5), checker), scene);
 		}
 
 		// tick for background surface
@@ -82,16 +84,6 @@ namespace Template
 				quad.Render(postproc, target.GetTextureID());
 			}
 
-			//Matrix4 Tpot = Matrix4.CreateScale( 0.5f ) * Matrix4.CreateFromAxisAngle( new Vector3( 0, 1, 0 ), a );
-			//Matrix4 Tfloor = Matrix4.CreateScale( 4.0f ) * Matrix4.CreateFromAxisAngle( new Vector3( 0, 1, 0 ), a );
-
-			
-			
-			//Matrix4 Tcamera = Matrix4.CreateTranslation( new Vector3(0, -10.5f, -10f ) ) * Matrix4.CreateFromAxisAngle( new Vector3( 1, 0, 0 ), angle90degrees );
-			
-
-			// update rotation
-			//a += 0.001f * frameDuration;
 			if( a > 2 * PI ) a -= 2 * PI;
 		}
 	}
@@ -103,10 +95,10 @@ namespace Template
 		public static Vector3 target = Vector3.Zero;
 		public static Vector3 up = Vector3.UnitY;
 		public static Vector3 front = new Vector3(0f, 0f, -1f);
-		//public static Vector3 lookingDirection = Vector3.Normalize(position - target);
+
+		//Looking direction variables
 		public static float pitch;
 		public static float yaw = -90;
-
 		public static Matrix4 view = Matrix4.LookAt(position, front, up);
 
 	}
@@ -115,9 +107,8 @@ namespace Template
     {
 		public Vector3 position;
 		public Vector3 color;
-		public float ambientstrength;
 
-		public Light(Vector3 color, Vector3 position)
+		public Light(Vector3 color, Vector3 position) //initialise light object
         {
 			this.color = color;
 			this.position = position;

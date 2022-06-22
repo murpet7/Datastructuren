@@ -84,21 +84,17 @@ namespace Template
 			// enable shader
 			GL.UseProgram( shader.programID );
 
-			//DIT HEB IK TOEGEVOEGD
+			// pass lightColor, lightPosition and cameraPosition to fragment shader
 			int uniform_lightColor = GL.GetUniformLocation(shader.programID, "lightColor");
 			GL.Uniform3(uniform_lightColor, shader.light.color);
 			int uniform_lightPos = GL.GetUniformLocation(shader.programID, "lightPos");
 			GL.Uniform3(uniform_lightPos, shader.light.position);
-
 			int uniform_viewPos = GL.GetUniformLocation(shader.programID, "viewPos");
 			GL.Uniform3(uniform_viewPos, Camera.position);
 
 			// pass transform to vertex shader
 			GL.UniformMatrix4( shader.uniform_mview, false, ref transform );
-
-			//DIT HEB IK TOEGEVOEGD
-			//scale4 = Matrix4.CreateScale(scale);
-			//modelMatrix *= scale4;
+			// pass modelMatrix to vertex shader
 			GL.UniformMatrix4(shader.uniform_model, false, ref modelMatrix);
 
 			// enable position, normal and uv attributes
