@@ -32,7 +32,9 @@ Variables that can be altered in Post process fragment shading:
 - Abberation intensity
 Vignetting and Abberation can be turned off seperately by commenting their respective line of code that changes the outputColor.
 
-
+The demo includes a floor and three other objects. The floor has the scene as parent, the middle object has the scene as parent,
+the object circling the middle object has the middle object as parent and the outer object has that object as parent.
+All three objects have their own rotation and translation, so the second and third objects rotate around their parent in the way you would expect.
 
 Materials used:
 https://learnopengl.com/Guest-Articles/2021/Scene/Scene-Graph
@@ -42,3 +44,4 @@ https://www.shadertoy.com/view/Mds3zn
 https://www.shadertoy.com/view/lsKSWR
 https://opentk.net/learn/chapter2/2-basic-lighting.html
 https://opentk.net/learn/chapter1/9-camera.html
+free3d.com
