@@ -30,10 +30,18 @@ namespace Template
                     mesh.globPos += parMesh.globPos;
                 }
 
-                mesh.modelMatrix =
-                    Matrix4.CreateScale(mesh.globScale) *
-                    Matrix4.CreateRotationX(mesh.globRot.X) * Matrix4.CreateRotationY(mesh.globRot.Y) * Matrix4.CreateRotationZ(mesh.globRot.Z) *
-                    Matrix4.CreateTranslation(mesh.globPos);
+                Entity currentEntity = ent;
+                
+                mesh.modelMatrix = Matrix4.Identity;
+                while (currentEntity.mesh != null)
+                {
+                    mesh.modelMatrix *=
+                    Matrix4.CreateScale(currentEntity.mesh.scale) *
+                    Matrix4.CreateRotationX(currentEntity.mesh.rot.X) * Matrix4.CreateRotationY(currentEntity.mesh.rot.Y) * Matrix4.CreateRotationZ(currentEntity.mesh.rot.Z) *
+                    Matrix4.CreateTranslation(currentEntity.mesh.pos);
+
+                    currentEntity = currentEntity.parent;
+                }   
 
                 mesh.Render(app.shader, mesh.modelMatrix * Tcamera * Tview, mesh.texture); //Moet nog worden veranderd
             }
