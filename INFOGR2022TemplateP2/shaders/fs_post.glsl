@@ -10,11 +10,30 @@ out vec3 outputColor;
 
 void main()
 {
-	// retrieve input pixel
+	//VIGNETTING
+	float lightintensity = 30;
+	float vignettescatter = 0.25;
+	vec2 uv1 = uv*( 1 - uv);
+	float vignet = pow(uv1.x*uv1.y*lightintensity, vignettescatter);
+
+	//CHROMATIC ABBERATION
+	float abberationintensity = 0.007;
+	vec3 abberationColor;
+	abberationColor.x = texture(pixels, vec2(uv.x+abberationintensity, uv.y)).x;
+	abberationColor.y = texture(pixels, vec2(uv.x, uv.y)).y;
+	abberationColor.z = texture(pixels, vec2(uv.x-abberationintensity, uv.y)).z;
+	abberationColor *= 1 - abberationintensity;
+
+
+	//RESULT
+	//--retrieve input pixel
 	outputColor = texture( pixels, uv ).rgb;
-	// apply dummy postprocessing effect
-//float dist = P.x * P.x + P.y * P.y;
-//	outputColor *= sin( dist * 50 ) * 0.25f + 0.75f;
+
+	//--Abberation
+	outputColor = abberationColor;
+
+	//--Vignetting
+	outputColor *= vignet;
 }
 
 // EOF

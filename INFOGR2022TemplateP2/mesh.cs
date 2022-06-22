@@ -89,6 +89,9 @@ namespace Template
 			int uniform_lightPos = GL.GetUniformLocation(shader.programID, "lightPos");
 			GL.Uniform3(uniform_lightPos, shader.light.position);
 
+			int uniform_viewPos = GL.GetUniformLocation(shader.programID, "viewPos");
+			GL.Uniform3(uniform_viewPos, Camera.position);
+
 			// pass transform to vertex shader
 			GL.UniformMatrix4( shader.uniform_mview, false, ref transform );
 

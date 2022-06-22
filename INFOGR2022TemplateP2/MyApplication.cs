@@ -13,7 +13,7 @@ namespace Template
 		Stopwatch timer;                        // timer for measuring frame duration
 		public Shader shader;                          // shader to use for rendering
 		public Shader postproc;                        // shader to use for post processing
-		public Texture wood;                           // texture to use for rendering
+		public Texture wood, metal;                           // texture to use for rendering
 		public RenderTarget target;                    // intermediate render target
 		public ScreenQuad quad;                        // screen filling quad for post processing
 		Light light;
@@ -27,18 +27,19 @@ namespace Template
 			timer.Reset();
 			timer.Start();
 			// create light
-			light = new Light(new Vector3(1.0f,1.0f,1.0f), new Vector3(20.0f, 5.0f, 0.0f));
+			light = new Light(new Vector3(1f,1f,1f), new Vector3(20.0f, 5.0f, 0.0f));
 			// create shaders
 			shader = new Shader("../../shaders/vs.glsl", "../../shaders/fs.glsl", light);
 			postproc = new Shader("../../shaders/vs_post.glsl", "../../shaders/fs_post.glsl", light);
 			// load a texture
 			wood = new Texture("../../assets/wood.jpg");
+			metal = new Texture("../../assets/metal1.jpg");
 			// create the render target
 			target = new RenderTarget(screen.width, screen.height);
 			quad = new ScreenQuad();
 
 			scene = new Entity(null);
-			teapot = new Entity(new Mesh("../../assets/teapot.obj", Vector3.Zero, Vector3.Zero, new Vector3(1, 1, 1), wood), scene);
+			teapot = new Entity(new Mesh("../../assets/teapot.obj", Vector3.Zero, Vector3.Zero, new Vector3(1, 1, 1), metal), scene);
 			floor = new Entity(new Mesh("../../assets/floor.obj", new Vector3(0, 1, 0), Vector3.Zero, new Vector3(1, 1, 1), wood), scene);
 		}
 
@@ -59,7 +60,7 @@ namespace Template
 
 			teapot.mesh.rot = new Vector3(0, a, 0);
 
-			a += 0.001f * frameDuration;
+			a += 0.0001f * frameDuration;
 			
 			if (useRenderTarget)
             {

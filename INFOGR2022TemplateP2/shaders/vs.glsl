@@ -20,6 +20,8 @@ void main()
 	fragPos = vec3(model * vec4(vPosition, 1.0));
 
 	// forward normal and uv coordinate; will be interpolated over triangle
-	normal = transform * vec4( vNormal, 0.0f );
+	//normal = transform * vec4( vNormal, 0.0f );
+	//normal = vec4( vNormal * mat3(transpose( inverse( model))), 0.0f);
+	normal = transpose(inverse(model)) * vec4( vNormal, 0.0f );
 	uv = vUV;
 }
