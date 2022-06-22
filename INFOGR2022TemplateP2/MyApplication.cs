@@ -7,7 +7,7 @@ namespace Template
 	{
 		// member variables
 		public Surface screen;                  // background surface for printing etc.
-		Entity scene, teapot, floor;
+		Entity scene, teapot1, teapot2, teapot3, floor;
 		const float PI = 3.1415926535f;         // PI
 		float a = 0;                            // teapot rotation angle
 		Stopwatch timer;                        // timer for measuring frame duration
@@ -40,9 +40,10 @@ namespace Template
 			quad = new ScreenQuad();
 
 			scene = new Entity(null);
-			//teapot = new Entity(new Mesh("../../assets/cat.obj", Vector3.Zero, Vector3.Zero, new Vector3(1f, 1f, 1f), wood), scene);
-			teapot = new Entity(new Mesh("../../assets/teapot.obj", Vector3.Zero, Vector3.Zero, new Vector3(1f, 1f, 1f), checker), scene);
-			floor = new Entity(new Mesh("../../assets/floor.obj", new Vector3(0, 1, 0), Vector3.Zero, new Vector3(1, 1, 1), checker), scene);
+			teapot1 = new Entity(new Mesh("../../assets/teapot.obj", Vector3.Zero, Vector3.Zero, new Vector3(1, 1, 1), metal), scene);
+			teapot2 = new Entity(new Mesh("../../assets/teapot.obj", new Vector3(15, 0, 0), Vector3.Zero, new Vector3(1, 1, 1), metal), teapot1);
+			teapot3 = new Entity(new Mesh("../../assets/teapot.obj", new Vector3(30, 0, 0), Vector3.Zero, new Vector3(1, 1, 2), metal), teapot2);
+			floor = new Entity(new Mesh("../../assets/floor.obj", new Vector3(0, 1, 0), Vector3.Zero, new Vector3(5), wood), scene);
 		}
 
 		// tick for background surface
@@ -60,9 +61,11 @@ namespace Template
 			timer.Reset();
 			timer.Start();
 
-			teapot.mesh.rot = new Vector3(0, a, 0);
+			teapot1.mesh.rot = new Vector3(0, a, 0);
+			teapot2.mesh.rot = new Vector3(0, a, 0);
+			teapot3.mesh.rot = new Vector3(0, a, 0);
 
-			a += 0.0001f * frameDuration;
+			a += 0.001f * frameDuration;
 			
 			if (useRenderTarget)
             {
