@@ -33,7 +33,7 @@ namespace Template
                 Entity currentEntity = ent;
                 
                 mesh.modelMatrix = Matrix4.Identity;
-                while (currentEntity.mesh != null)
+                while (currentEntity.mesh != null) //applies the transformation of the object and all its parents
                 {
                     mesh.modelMatrix *=
                     Matrix4.CreateScale(currentEntity.mesh.scale) *
@@ -43,12 +43,12 @@ namespace Template
                     currentEntity = currentEntity.parent;
                 }   
 
-                mesh.Render(app.shader, mesh.modelMatrix * Tcamera * Tview, mesh.texture); //Moet nog worden veranderd
+                mesh.Render(app.shader, mesh.modelMatrix * Tcamera * Tview, mesh.texture);
             }
 
             for (int i = 0; i < ent.children.Count; i++)
             {
-                Render(ent.children[i], app); //Gaat recursief langs alle entities
+                Render(ent.children[i], app); //Recursively renders all children of this object
             }
         }
     }
